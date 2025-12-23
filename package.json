@@ -27,4 +27,5 @@
     "@vitejs/plugin-react-swc": "^4.0.1",
     "vite": "^7.1.3"
   }
+
 }
