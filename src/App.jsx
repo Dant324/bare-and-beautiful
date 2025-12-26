@@ -10,6 +10,7 @@ import AdminLogin from './components/AdminLogin';
 import AdminPanel from './components/AdminPanel';
 import { db } from './components/firebase/firebase';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('home');
@@ -30,10 +31,16 @@ export default function App() {
     setCurrentScreen('home');
   };
 
-  const handleSignup = (email) => {
-    setUser({ email, name: email.split('@')[0] });
-    setCurrentScreen('home');
-  };
+  const handleSignup = async (email, password) => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    // This sends the verification link!
+    await sendEmailVerification(userCredential.user); 
+    alert("Signup successful! Please check your email to verify your account.");
+  } catch (error) {
+    console.error(error.message);
+  }
+};
 
   const handleLogout = () => {
     setUser(null);
