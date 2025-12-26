@@ -159,7 +159,7 @@ export default function ProductsPage({
           </div>
         </div>
 
-        <div className={viewMode === 'grid' ? 'grid sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'flex flex-col gap-4'}>
+        <div className={viewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6' : 'flex flex-col gap-4'}>
           {sortedProducts.map(product => (
             <Card 
               key={product.id} 
