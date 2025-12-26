@@ -16,32 +16,35 @@ export default function SignupScreen({ onNavigate, onSignup }) {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
+    e.preventDefault();
+    setError('');
 
-  // New Strong Password Regex
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    // 1. Strong Password Requirements (8+ chars, Uppercase, Number, Special Char)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-  if (!passwordRegex.test(password)) {
-    setError('Password must be 8+ chars, include Uppercase, Number, and Special Character (@$!%*?&)');
-    return;
-  }
+    if (!passwordRegex.test(password)) {
+      setError('Password must be 8+ chars, include Uppercase, Number, and Special Character');
+      return;
+    }
 
-  if (password !== confirmPassword) {
-    setError('Passwords do not match');
-    return;
-  }
-  // ... rest of code
-};
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
     }
 
     setIsLoading(true);
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    onSignup(email, password);
-    setIsLoading(false);
+    try {
+      // Simulate API call delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
+      // Call the signup function passed via props
+      await onSignup(email, password);
+    } catch (err) {
+      setError(err.message || "Failed to create account");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -101,11 +104,7 @@ export default function SignupScreen({ onNavigate, onSignup }) {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -127,11 +126,7 @@ export default function SignupScreen({ onNavigate, onSignup }) {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    {showConfirmPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
