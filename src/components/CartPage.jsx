@@ -16,6 +16,7 @@ import { Card, CardContent } from './ui/card';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import emailjs from '@emailjs/browser';
 
 export default function CartPage({ 
   onNavigate, 
@@ -33,12 +34,34 @@ export default function CartPage({
   }, 0);
 
   const handleCheckout = () => {
-    if (!user) {
-      onNavigate('login');
-      return;
-    }
-    alert('Checkout feature would be implemented with payment processing');
+  if (!user) {
+    onNavigate('login');
+    return;
+  }
+
+  const templateParams = {
+    user_name: user.name || user.email, 
+    order_id: `BB-${Math.floor(Math.random() * 10000)}`,
+    items: cart.map(item => `${item.product.name} (x${item.quantity})`).join('\n'),
+    total_price: `KSh ${total.toLocaleString()}`
   };
+
+  emailjs.send(
+    'gmail_mbr1o37', 
+    'template_hq4drwr', 
+    templateParams, 
+    'MjSbLT7eGDI_KfpOs'
+  )
+ .then((response) => {
+    console.log('SUCCESS!', response.status, response.text);
+    alert('Order successful! Check your email for the receipt.');
+    // Optional: Clear the cart here
+  })
+  .catch((err) => {
+    console.error('FAILED...', err);
+    alert('Email failed to send. Please check your connection.');
+  });
+};
 
   if (cart.length === 0) {
     return (
