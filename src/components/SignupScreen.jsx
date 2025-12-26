@@ -16,17 +16,23 @@ export default function SignupScreen({ onNavigate, onSignup }) {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+  e.preventDefault();
+  setError('');
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+  // New Strong Password Regex
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
+  if (!passwordRegex.test(password)) {
+    setError('Password must be 8+ chars, include Uppercase, Number, and Special Character (@$!%*?&)');
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    setError('Passwords do not match');
+    return;
+  }
+  // ... rest of code
+};
     }
 
     setIsLoading(true);
