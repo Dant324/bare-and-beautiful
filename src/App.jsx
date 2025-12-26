@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// Components
 import HomePage from './components/HomePage';
 import LoginScreen from './components/LoginScreen';
 import SignupScreen from './components/SignupScreen';
@@ -8,8 +9,11 @@ import CartPage from './components/CartPage';
 import ProfilePage from './components/ProfilePage';
 import AdminLogin from './components/AdminLogin';
 import AdminPanel from './components/AdminPanel';
-import { db } from './components/firebase/firebase';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+
+// Firebase Config and Auth
+// Combine imports to avoid "already been declared" errors
+import { db, auth } from './components/firebase/firebase'; 
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 
 export default function App() {
@@ -18,9 +22,9 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [products, setProducts] = useState([]); // NEW: all products
-  const [featuredProducts, setFeaturedProducts] = useState([]); // NEW: featured for home
-  const [adminLoggedIn, setAdminLoggedIn] = useState(false); // NEW: optional admin
+  const [products, setProducts] = useState([]); 
+  const [featuredProducts, setFeaturedProducts] = useState([]); 
+  const [adminLoggedIn, setAdminLoggedIn] = useState(false); 
 
   const navigateToScreen = (screen) => {
     setCurrentScreen(screen);
@@ -32,15 +36,16 @@ export default function App() {
   };
 
   const handleSignup = async (email, password) => {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    // This sends the verification link!
-    await sendEmailVerification(userCredential.user); 
-    alert("Signup successful! Please check your email to verify your account.");
-  } catch (error) {
-    console.error(error.message);
-  }
-};
+    try {
+      // Ensure 'auth' is correctly imported above
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await sendEmailVerification(userCredential.user); 
+      alert("Signup successful! Please check your email to verify your account.");
+    } catch (error) {
+      console.error("Signup error:", error.message);
+      alert(error.message);
+    }
+  };
 
   const handleLogout = () => {
     setUser(null);
@@ -86,7 +91,7 @@ export default function App() {
 
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
-  // NEW: Fetch products from Firestore
+  // Fetch products from Firestore
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -94,7 +99,7 @@ export default function App() {
         const snapshot = await getDocs(q);
         const allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setProducts(allProducts);
-        // featured products
+        
         const featured = allProducts.filter(p => p.featured);
         setFeaturedProducts(featured);
       } catch (err) {
@@ -104,7 +109,6 @@ export default function App() {
     fetchProducts();
   }, []);
 
-  // MAIN RENDER
   return (
     <div className="min-h-screen bg-background">
       {adminLoggedIn ? (
@@ -118,9 +122,8 @@ export default function App() {
           onViewProduct={viewProduct}
           onSelectCategory={setSelectedCategory}
           cartItemCount={cartItemCount}
-          featuredProducts={featuredProducts} // pass featured
+          featuredProducts={featuredProducts} 
         />
-        
       ) : currentScreen === 'login' ? (
         <LoginScreen onNavigate={navigateToScreen} onLogin={handleLogin} />
       ) : currentScreen === 'signup' ? (
@@ -133,7 +136,7 @@ export default function App() {
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
           cartItemCount={cartItemCount}
-          allProducts={products} // pass live products
+          allProducts={products} 
         />
       ) : currentScreen === 'product-detail' && selectedProduct ? (
         <ProductDetailPage
@@ -149,7 +152,7 @@ export default function App() {
           user={user}
           cart={cart}
           onUpdateQuantity={updateCartQuantity}
-          onRemoveItem={removeFromCart}
+          onRemoveItem={removeFromCart} 
         />
       ) : currentScreen === 'profile' ? (
         <ProfilePage
