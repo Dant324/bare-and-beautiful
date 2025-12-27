@@ -159,52 +159,65 @@ export default function ProductsPage({
           </div>
         </div>
 
-        <div className={viewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6' : 'flex flex-col gap-4'}>
-          {sortedProducts.map(product => (
-            <Card 
-              key={product.id} 
-              className="cursor-pointer hover:scale-105 transition-transform duration-300" 
-              onClick={() => onViewProduct(product)}
-            >
-              <CardContent className="p-0">
-                <div className="relative overflow-hidden rounded-t-lg">
-                 <img
-                  src={product.image} // <-- comes from your Firestore or AdminPanel
-                  alt={product.name}
-                  className="w-full h-auto max-h-80 object-contain bg-white rounded-lg"
-                  />
-                  <Button size="sm" variant="ghost" className="absolute top-2 right-2 bg-white/80 hover:bg-white">
-                    <Heart className="w-4 h-4" />
-                  </Button>
-                  {product.originalPrice && (
-                    <Badge className="absolute top-2 left-2 bg-red-500 text-white">
-                      Save KSh {product.originalPrice - product.price}
-                    </Badge>
-                  )}
-                </div>
-
-                <div className="p-4">
-                  <div className="flex items-center gap-1 mb-2">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm text-muted-foreground">
-                      {product.rating || 'N/A'} ({product.reviewCount || 0})
-                    </span>
-                  </div>
-                  <h4 className="font-medium mb-1">{product.name}</h4>
-                  <p className="text-sm text-muted-foreground mb-2">{product.brand}</p>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold">KSh {product.price?.toLocaleString()}</span>
-                    {product.originalPrice && (
-                      <span className="text-sm text-muted-foreground line-through">
-                        KSh {product.originalPrice.toLocaleString()}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+       <div className={viewMode === 'grid' 
+  ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6' 
+  : 'flex flex-col gap-4'}>
+  
+  {sortedProducts.map(product => (
+    <Card 
+      key={product.id} 
+      className={`cursor-pointer hover:shadow-lg transition-all flex flex-col overflow-hidden ${viewMode === 'list' ? 'flex-row' : 'h-full'}`}
+      onClick={() => onViewProduct(product)}
+    >
+      <CardContent className={`p-0 flex ${viewMode === 'list' ? 'flex-row w-full' : 'flex-col h-full'}`}>
+        
+        {/* Image Container: Forced Square in Grid Mode */}
+        <div className={`relative bg-white flex items-center justify-center p-2 border-border/50 ${
+          viewMode === 'list' ? 'w-32 h-32 md:w-48 md:h-48' : 'aspect-square border-b'
+        }`}>
+          <img
+            src={product.image}
+            alt={product.name}
+            className="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300"
+          />
+          {product.originalPrice && (
+            <Badge className="absolute top-2 left-2 bg-red-500 text-[10px]">
+              SALE
+            </Badge>
+          )}
         </div>
+
+        {/* Info Container */}
+        <div className="p-3 flex flex-col flex-grow justify-between">
+          <div className="space-y-1">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              {product.brand}
+            </p>
+            {/* truncate is key here to keep heights even */}
+            <h4 className="font-bold text-sm md:text-base truncate leading-tight">
+              {product.name}
+            </h4>
+            <div className="flex items-center gap-1">
+               <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+               <span className="text-[10px] text-muted-foreground">{product.rating || '5.0'}</span>
+            </div>
+          </div>
+
+          <div className="mt-2">
+            <span className="font-bold text-pink-600 text-sm md:text-base block">
+              KSh {product.price?.toLocaleString()}
+            </span>
+            {product.originalPrice && (
+              <span className="text-[10px] text-muted-foreground line-through opacity-60">
+                KSh {product.originalPrice.toLocaleString()}
+              </span>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  ))}
+</div>
       </div>
     </div>
   );

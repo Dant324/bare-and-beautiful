@@ -34,16 +34,21 @@ const buttonVariants = cva(
   }
 );
 
-function Button({ className, variant, size, asChild = false, ...props }) {
+// FIXED: Wrapped the component in React.forwardRef to allow DialogTrigger to work
+const Button = React.forwardRef(({ className, variant, size, asChild = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button";
 
   return (
     <Comp
       data-slot="button"
+      ref={ref} // Forwarding the ref here
       className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     />
   );
-}
+});
+
+// Setting a display name is best practice when using forwardRef
+Button.displayName = "Button";
 
 export { Button, buttonVariants };

@@ -152,55 +152,50 @@ export default function HomePage({ onNavigate, user, onViewProduct, onSelectCate
           ) : featuredProducts.length === 0 ? (
             <p className="text-center text-muted-foreground">No featured products available.</p>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
-              {featuredProducts.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ y: 30, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <Card className="cursor-pointer hover:scale-105 transition-transform duration-300 group">
-                    <CardContent className="p-0">
-                      <div className="relative overflow-hidden rounded-t-lg">
-                        <img
-                        src={product.image} // <-- comes from your Firestore or AdminPanel
-                        alt={product.name}
-                        className="w-full h-auto max-h-80 object-contain bg-white rounded-lg"
-                        />
-                        <Button size="sm" variant="ghost" className="absolute top-2 right-2 bg-white/80 hover:bg-white">
-                          <Heart className="w-4 h-4" />
-                        </Button>
-                        {product.originalPrice && (
-                          <Badge className="absolute top-2 left-2 bg-red-500 text-white">
-                            Save KSh {product.originalPrice - product.price}
-                          </Badge>
-                        )}
-                      </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
+  {featuredProducts.map((product) => (
+    <Card 
+      key={product.id} 
+      className="cursor-pointer hover:shadow-md transition-all flex flex-col h-full overflow-hidden"
+      onClick={() => onViewProduct(product)}
+    >
+      <CardContent className="p-0 flex flex-col h-full">
+        {/* Fixed Image Container: aspect-square ensures width = height */}
+        <div className="relative aspect-square bg-white flex items-center justify-center p-2 overflow-hidden border-b">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="max-w-full max-h-full object-contain hover:scale-110 transition-transform duration-300"
+          />
+          {product.originalPrice && product.originalPrice > product.price && (
+            <Badge className="absolute top-2 left-2 bg-red-500 text-[10px] md:text-xs">
+              OFF
+            </Badge>
+          )}
+        </div>
 
-                      <div className="p-4" onClick={() => onViewProduct(product)}>
-                        <div className="flex items-center gap-1 mb-2">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm text-muted-foreground">
-                            {product.rating} ({product.reviewCount})
-                          </span>
-                        </div>
-                        <h4 className="font-medium mb-1">{product.name}</h4>
-                        <p className="text-sm text-muted-foreground mb-2">{product.brand}</p>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold">KSh {product.price.toLocaleString()}</span>
-                          {product.originalPrice && (
-                            <span className="text-sm text-muted-foreground line-through">
-                              KSh {product.originalPrice.toLocaleString()}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+        {/* Text Section: Fixed height and padding */}
+        <div className="p-3 flex flex-col flex-grow justify-between">
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+              {product.brand}
+            </p>
+            {/* truncate prevents the card from growing if the name is too long */}
+            <h4 className="font-bold text-sm md:text-base mb-1 truncate">
+              {product.name}
+            </h4>
+          </div>
+
+          <div className="flex items-center justify-between mt-2">
+            <span className="font-bold text-pink-600 text-sm md:text-base">
+              KSh {product.price?.toLocaleString()}
+            </span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  ))}
+</div>
           )}
         </div>
       </motion.section>
