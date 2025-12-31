@@ -163,52 +163,63 @@ export default function ProductsPage({
   ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6' 
   : 'flex flex-col gap-4'}>
   
-  {sortedProducts.map(product => (
+ {sortedProducts.map(product => {
+  // 1. Calculate the dynamic discount percentage
+  const discountPercentage = product.originalPrice && product.originalPrice > product.price
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : null;
+
+  return (
     <Card 
       key={product.id} 
-      className={`cursor-pointer hover:shadow-lg transition-all flex flex-col overflow-hidden ${viewMode === 'list' ? 'flex-row' : 'h-full'}`}
+      className={`cursor-pointer hover:shadow-xl transition-all flex flex-col overflow-hidden rounded-2xl border-none shadow-sm ${
+        viewMode === 'list' ? 'flex-row h-32 md:h-48' : 'h-full'
+      }`}
       onClick={() => onViewProduct(product)}
     >
       <CardContent className={`p-0 flex ${viewMode === 'list' ? 'flex-row w-full' : 'flex-col h-full'}`}>
         
-        {/* Image Container: Forced Square in Grid Mode */}
-        <div className={`relative bg-white flex items-center justify-center p-2 border-border/50 ${
-          viewMode === 'list' ? 'w-32 h-32 md:w-48 md:h-48' : 'aspect-square border-b'
+        {/* 2. Image Container: Consistent Scaling */}
+        <div className={`relative bg-white flex items-center justify-center p-4 border-slate-50 ${
+          viewMode === 'list' ? 'w-32 md:w-48 flex-shrink-0' : 'aspect-square border-b'
         }`}>
           <img
             src={product.image}
             alt={product.name}
-            className="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300"
+            /* Object-contain prevents the "phone screenshot" stretching issue */
+            className="w-full h-full object-contain hover:scale-105 transition-transform duration-500"
           />
-          {product.originalPrice && (
-            <Badge className="absolute top-2 left-2 bg-red-500 text-[10px]">
-              SALE
+          
+          {/* 3. Dynamic Badge: Shows exact percentage off */}
+          {discountPercentage && (
+            <Badge className="absolute top-2 left-2 bg-red-600 text-red font-bold text-[9px] px-2 py-0.5 rounded-full">
+              {discountPercentage}% OFF
             </Badge>
           )}
         </div>
 
         {/* Info Container */}
-        <div className="p-3 flex flex-col flex-grow justify-between">
+        <div className="p-4 flex flex-col flex-grow justify-between bg-white">
           <div className="space-y-1">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            <p className="text-[10px] text-pink-600 font-bold uppercase tracking-widest">
               {product.brand}
             </p>
-            {/* truncate is key here to keep heights even */}
-            <h4 className="font-bold text-sm md:text-base truncate leading-tight">
+            {/* line-clamp-2 keeps row heights even if names are long */}
+            <h4 className="font-bold text-sm md:text-base text-slate-800 leading-snug line-clamp-2">
               {product.name}
             </h4>
-            <div className="flex items-center gap-1">
-               <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-               <span className="text-[10px] text-muted-foreground">{product.rating || '5.0'}</span>
+            <div className="flex items-center gap-1.5 pt-1">
+               <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 border-none" />
+               <span className="text-[11px] font-medium text-slate-500">{product.rating || '5.0'}</span>
             </div>
           </div>
 
-          <div className="mt-2">
-            <span className="font-bold text-pink-600 text-sm md:text-base block">
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="font-bold text-slate-900 text-sm md:text-lg">
               KSh {product.price?.toLocaleString()}
             </span>
             {product.originalPrice && (
-              <span className="text-[10px] text-muted-foreground line-through opacity-60">
+              <span className="text-[10px] md:text-xs text-slate-400 line-through font-medium">
                 KSh {product.originalPrice.toLocaleString()}
               </span>
             )}
@@ -216,7 +227,8 @@ export default function ProductsPage({
         </div>
       </CardContent>
     </Card>
-  ))}
+  );
+})}
 </div>
       </div>
     </div>

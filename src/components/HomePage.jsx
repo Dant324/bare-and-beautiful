@@ -125,7 +125,7 @@ export default function HomePage({ onNavigate, user, onViewProduct, onSelectCate
 
           <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.6, delay: 0.4 }}>
             <ImageWithFallback
-              src="https://images.unsplash.com/photo-1625499554890-687b49f24259?..."
+              src="https://images.unsplash.com/photo-1625499554890-687b49f24259"
               alt="Beautiful woman with glowing skin"
               className="w-full h-80 md:h-96 object-cover rounded-2xl shadow-2xl"
             />
@@ -153,48 +153,62 @@ export default function HomePage({ onNavigate, user, onViewProduct, onSelectCate
             <p className="text-center text-muted-foreground">No featured products available.</p>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-  {featuredProducts.map((product) => (
+{featuredProducts.map((product) => {
+  // Calculate the actual percentage discount
+  const discountPercentage = product.originalPrice && product.originalPrice > product.price
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : null;
+
+  return (
     <Card 
       key={product.id} 
-      className="cursor-pointer hover:shadow-md transition-all flex flex-col h-full overflow-hidden"
+      className="cursor-pointer hover:shadow-lg transition-all flex flex-col h-full overflow-hidden rounded-2xl border-none shadow-sm"
       onClick={() => onViewProduct(product)}
     >
       <CardContent className="p-0 flex flex-col h-full">
-        {/* Fixed Image Container: aspect-square ensures width = height */}
-        <div className="relative aspect-square bg-white flex items-center justify-center p-2 overflow-hidden border-b">
+        {/* Aspect-square ensures consistency across all screen sizes */}
+        <div className="relative aspect-square bg-white flex items-center justify-center p-4 overflow-hidden border-b border-slate-50">
           <img
             src={product.image}
             alt={product.name}
-            className="max-w-full max-h-full object-contain hover:scale-110 transition-transform duration-300"
+            /* Object-contain prevents image stretching on mobile */
+            className="w-full h-full object-contain hover:scale-110 transition-transform duration-500"
           />
-          {product.originalPrice && product.originalPrice > product.price && (
-            <Badge className="absolute top-2 left-2 bg-red-500 text-[10px] md:text-xs">
-              OFF
+          
+          {/* Dynamic Badge: Displays calculated percentage */}
+          {discountPercentage && (
+            <Badge className="absolute top-4 left-3 bg-red-600 text-black font-bold px-2 py-1 rounded-full text-[10px]">
+              {discountPercentage}% OFF
             </Badge>
           )}
+          
         </div>
 
-        {/* Text Section: Fixed height and padding */}
-        <div className="p-3 flex flex-col flex-grow justify-between">
+        <div className="p-4 flex flex-col flex-grow justify-between bg-white">
           <div>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+            <p className="text-[10px] text-pink-600 font-bold uppercase tracking-widest mb-1">
               {product.brand}
             </p>
-            {/* truncate prevents the card from growing if the name is too long */}
-            <h4 className="font-bold text-sm md:text-base mb-1 truncate">
+            <h4 className="font-bold text-sm text-slate-800 line-clamp-2 leading-tight">
               {product.name}
             </h4>
           </div>
 
-          <div className="flex items-center justify-between mt-2">
-            <span className="font-bold text-pink-600 text-sm md:text-base">
+          <div className="flex items-center gap-2 mt-3">
+            <span className="font-bold text-slate-900 text-base">
               KSh {product.price?.toLocaleString()}
             </span>
+            {product.originalPrice && (
+              <span className="text-xs text-slate-400 line-through">
+                KSh {product.originalPrice.toLocaleString()}
+              </span>
+            )}
           </div>
         </div>
       </CardContent>
     </Card>
-  ))}
+  );
+})}
 </div>
           )}
         </div>
@@ -216,7 +230,6 @@ export default function HomePage({ onNavigate, user, onViewProduct, onSelectCate
 <footer className="py-8 border-t border-border">
   <div className="container mx-auto px-4">
     <div className="grid md:grid-cols-4 gap-6">
-      {/* About */}
       <div>
         <h4 className="font-bold mb-3">Bare and Beautiful</h4>
         <p className="text-sm text-muted-foreground">
@@ -224,7 +237,6 @@ export default function HomePage({ onNavigate, user, onViewProduct, onSelectCate
         </p>
       </div>
 
-      {/* Categories */}
       <div>
         <h5 className="font-medium mb-3">Categories</h5>
         <ul className="space-y-2 text-sm text-muted-foreground">
@@ -244,7 +256,6 @@ export default function HomePage({ onNavigate, user, onViewProduct, onSelectCate
         </ul>
       </div>
 
-      {/* Support */}
       <div>
         <h5 className="font-medium mb-3">Support</h5>
         <ul className="space-y-2 text-sm text-muted-foreground">
@@ -255,7 +266,6 @@ export default function HomePage({ onNavigate, user, onViewProduct, onSelectCate
         </ul>
       </div>
 
-      {/* Connect */}
       <div>
         <h5 className="font-medium mb-3">Connect</h5>
         <ul className="space-y-2 text-sm text-muted-foreground">
@@ -276,8 +286,6 @@ export default function HomePage({ onNavigate, user, onViewProduct, onSelectCate
 
   </div>
 </footer>
-
     </div>
-    
   );
 }

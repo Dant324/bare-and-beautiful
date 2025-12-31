@@ -43,10 +43,19 @@ export default function ProductDetailPage({
             {user ? (
               <Button variant="ghost" size="sm" onClick={() => onNavigate('profile')} className="hidden md:flex"><User className="w-4 h-4 mr-2" />{user.name}</Button>
             ) : <Button variant="ghost" size="sm" onClick={() => onNavigate('login')}>Sign In</Button>}
-            <Button variant="ghost" size="sm" className="relative" onClick={() => onNavigate('cart')}>
-              <ShoppingBag className="w-4 h-4" />
-              {cartItemCount > 0 && <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 bg-pink-600 text-white text-[10px] rounded-full">{cartItemCount}</Badge>}
-            </Button>
+            <Button
+                          variant="ghost"
+                          size="sm"
+                          className="relative"
+                          onClick={() => onNavigate('cart')}
+                        >
+                          <ShoppingBag className="w-4 h-4" />
+                          {cartItemCount > 0 && (
+                            <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 bg-primary text-primary-foreground text-xs">
+                              {cartItemCount}
+                            </Badge>
+                          )}
+                        </Button>
           </div>
         </div>
       </motion.header>
@@ -55,7 +64,7 @@ export default function ProductDetailPage({
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
           <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="relative">
             <div className="relative overflow-hidden rounded-2xl bg-white border shadow-sm flex items-center justify-center p-4">
-              <ImageWithFallback src={product.image} alt={product.name} className="w-full h-80 md:h-96 lg:h-[500px] object-contain" />
+              <ImageWithFallback src={product.image} alt={product.name} className="w-full h-full object-contain transition-transform duration-700 hover:scale-110" />
               <Button 
                 variant="secondary" 
                 size="icon" 
