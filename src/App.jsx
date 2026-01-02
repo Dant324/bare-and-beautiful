@@ -11,13 +11,23 @@ import AdminLogin from './components/AdminLogin';
 import AdminPanel from './components/AdminPanel';
 
 // Firebase Config and Auth
-import { db, auth } from './components/firebase/firebase'; 
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { auth, db } from "./components/firebase/firebase"; // Make sure db is imported
+import { onAuthStateChanged } from "firebase/auth";
+import { 
+  doc, 
+  getDoc, 
+  collection, 
+  getDocs, 
+  query, 
+  where, 
+  orderBy 
+} from "firebase/firestore";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('home');
   const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false); // New state for admin status
+  const [loading, setLoading] = useState(true); // New loading state
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
   const [products, setProducts] = useState([]); 
@@ -88,12 +98,47 @@ export default function App() {
 
 const updateProfile = (newData) => {
   setUser(prev => ({ ...prev, ...newData }));
-
+  // Optionally: Update this in Firebase Auth/Firestore too
+  // updateProfile(auth.currentUser, { displayName: newData.name });
 };
 
+useEffect(() => {
+
+  const ADMIN_EMAILS =[ 
+    "michaelmurag7@gmail.com",
+    "kellymurage@gmail.com"
+  ];
+
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      if (u) {
+        setUser(u);
+        // 2. CHECK IF EMAIL MATCHES OR IF UID IS IN ADMINS COLLECTION
+        try {
+        // 2. Check if the logged-in email is in our list
+        if (ADMIN_EMAILS.includes(u.email)) {
+          setIsAdmin(true);
+        } else {
+          // 3. Backup check: Still check Firestore for anyone else
+          const adminRef = doc(db, "admins", u.uid);
+          const adminSnap = await getDoc(adminRef);
+          setIsAdmin(adminSnap.exists());
+        }
+      } catch (error) {
+        console.error("Admin check failed:", error);
+        setIsAdmin(false);
+      }
+    } else {
+      setUser(null);
+      setIsAdmin(false);
+    }
+    setLoading(false);
+  });
+  return unsubscribe;
+}, []);
+  
   return (
     <div className="min-h-screen bg-background">
-      {adminLoggedIn ? (
+      {isAdmin ?(
         <AdminPanel />
       ) : currentScreen === 'admin-login' ? (
         <AdminLogin onLoginSuccess={() => setAdminLoggedIn(true)} />
