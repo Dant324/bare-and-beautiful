@@ -8,7 +8,7 @@ import { Card, CardContent } from './ui/card';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 import { db } from "./firebase/firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, limit, orderBy } from "firebase/firestore";
 
 const categories = [
   { id: 'skincare', name: 'Skincare', icon: '✨' },
@@ -19,6 +19,7 @@ const categories = [
 
 export default function HomePage({ onNavigate, user, onViewProduct, onSelectCategory, cartItemCount }) {
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [latestReviews, setLatestReviews] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const handleCategoryClick = (categoryId) => {
@@ -27,21 +28,33 @@ export default function HomePage({ onNavigate, user, onViewProduct, onSelectCate
   };
 
   useEffect(() => {
-    // Fetch products directly from Firestore
-    const fetchProducts = async () => {
+    // Fetch products and reviews directly from Firestore
+    const fetchData = async () => {
       try {
-        const q = query(collection(db, "products"), where("featured", "==", true));
-        const snapshot = await getDocs(q);
-        const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setFeaturedProducts(products);
+        setLoading(true);
+        // Products query
+        const pQuery = query(collection(db, "products"), where("featured", "==", true));
+        const pSnapshot = await getDocs(pQuery);
+        setFeaturedProducts(pSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
+        // Latest high-rated reviews query
+        const rQuery = query(
+          collection(db, "reviews"), 
+          where("rating", ">=", 4), 
+          orderBy("date", "desc"), 
+          limit(4)
+        );
+        const rSnapshot = await getDocs(rQuery);
+        setLatestReviews(rSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
       } catch (err) {
-        console.error('Error fetching featured products:', err);
+        console.error('Error fetching data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchData();
   }, []);
 
   return (
@@ -213,6 +226,26 @@ export default function HomePage({ onNavigate, user, onViewProduct, onSelectCate
           )}
         </div>
       </motion.section>
+
+      {/* Dynamic Reviews Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 text-center">
+          <h3 className="text-2xl font-bold mb-8">What Our Customers Say</h3>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {latestReviews.map((rev) => (
+              <div key={rev.id} className="p-6 bg-pink-50/50 rounded-[2rem] text-left border border-pink-100">
+                <div className="flex gap-1 mb-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`w-3 h-3 ${i < rev.rating ? 'fill-pink-500 text-pink-500' : 'text-slate-200'}`} />
+                  ))}
+                </div>
+                <p className="text-sm italic mb-4">"{rev.comment}"</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">— {rev.userName}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Newsletter */}
       <motion.section initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, delay: 1.2 }} className="py-16 bg-gradient-to-r from-pink-600 to-orange-600">

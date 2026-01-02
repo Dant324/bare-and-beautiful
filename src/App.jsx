@@ -35,6 +35,12 @@ export default function App() {
   const [wishlist, setWishlist] = useState([]);
   const [adminLoggedIn, setAdminLoggedIn] = useState(false);
 
+const handleNavigate = (screenName) => {
+    setCurrentScreen(screenName);
+    // Optional: Scroll to top when changing pages
+    window.scrollTo(0, 0); 
+  };
+
   // --- Navigation ---
   const navigateToScreen = (screen) => {
     setCurrentScreen(screen);
@@ -138,11 +144,16 @@ useEffect(() => {
   
   return (
     <div className="min-h-screen bg-background">
-      {isAdmin ?(
-        <AdminPanel />
-      ) : currentScreen === 'admin-login' ? (
-        <AdminLogin onLoginSuccess={() => setAdminLoggedIn(true)} />
-      ) : currentScreen === 'home' ? (
+      {isAdmin ? (
+    // Pass onNavigate so the Admin can go back to the Home screen
+    <AdminPanel onNavigate={handleNavigate} user={user} /> 
+  ) : currentScreen === 'admin-login' ? (
+    // Pass onNavigate so the "Back" button works on the login screen
+    <AdminLogin 
+      onNavigate={handleNavigate} 
+      onLoginSuccess={() => setIsAdmin(true)} 
+    />
+  ) : currentScreen === 'home' ? (
         <HomePage 
           onNavigate={navigateToScreen} 
           user={user} 
