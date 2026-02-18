@@ -64,13 +64,14 @@ export default function ProductDetailPage({
 
   if (!product) return null;
 
-  // Helper to format description with spacing and bold headings
+  // REFINED BOLDING LOGIC
+  // Target lines starting with "Key" or short lines ending in ":"
   const renderFormattedDescription = (text) => {
     if (!text) return null;
     return text.split('\n').map((line, i) => {
-      const isHeading = line.includes(':');
+      const isHeading = line.toLowerCase().startsWith('key') || (line.includes(':') && line.length < 40);
       return (
-        <p key={i} className={`mb-3 leading-relaxed ${isHeading ? 'font-bold text-slate-900 mt-4' : 'text-slate-600'}`}>
+        <p key={i} className={`mb-3 leading-relaxed ${isHeading ? 'font-black text-slate-900 mt-6' : 'text-slate-600 text-sm'}`}>
           {line}
         </p>
       );
@@ -181,9 +182,8 @@ export default function ProductDetailPage({
 
           <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="space-y-6">
             <div className="space-y-2">
-              {/* Brown Brand Color */}
               <p className="text-[#8B4513] font-black uppercase tracking-widest text-xs">{product.brand}</p>
-              <h2 className="text-2xl md:text-4xl font-bold leading-tight">{product.name}</h2>
+              <h2 className="text-2xl md:text-4xl font-bold leading-tight text-slate-900">{product.name}</h2>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-lg">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -214,14 +214,15 @@ export default function ProductDetailPage({
                 </div>
               </div>
               <div className="flex gap-4">
-                <Button size="lg" className="flex-1 bg-black text-white h-14 rounded-xl" onClick={handleAddToCart}>Add to Cart</Button>
-                <Button size="lg" variant="outline" className="flex-1 h-14 rounded-xl border-2" onClick={handleBuyNow}>Buy Now</Button>
+                <Button size="lg" className="flex-1 bg-black text-white h-14 rounded-xl font-bold" onClick={handleAddToCart}>Add to Cart</Button>
+                <Button size="lg" variant="outline" className="flex-1 h-14 rounded-xl border-2 font-bold" onClick={handleBuyNow}>Buy Now</Button>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 pt-6">
-              <div className="p-3 rounded-2xl bg-slate-50 text-center space-y-1"><Truck className="w-5 h-5 mx-auto text-slate-600" /><p className="text-[10px] font-bold">On-time Delivery</p></div>
-              <div className="p-3 rounded-2xl bg-slate-50 text-center space-y-1"><Shield className="w-5 h-5 mx-auto text-slate-600" /><p className="text-[10px] font-bold">Authentic</p></div>
+            <div className="grid grid-cols-2 gap-4 pt-6">
+              {/* UPDATED TO PAID DELIVERY */}
+              <div className="p-4 rounded-2xl bg-slate-50 text-center space-y-1"><Truck className="w-5 h-5 mx-auto text-slate-400" /><p className="text-[10px] font-black uppercase tracking-widest">Paid Delivery</p></div>
+              <div className="p-4 rounded-2xl bg-slate-50 text-center space-y-1"><Shield className="w-5 h-5 mx-auto text-slate-400" /><p className="text-[10px] font-black uppercase tracking-widest">Authentic</p></div>
             </div>
 
             <div className="mt-12 pt-8 border-t">
@@ -270,11 +271,11 @@ export default function ProductDetailPage({
         </div>
       </div>
 
-      <motion.div initial={{ y: 100 }} animate={{ y: 0 }} className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t p-4 flex items-center gap-3 z-50 md:hidden">
-        <div className="flex items-center border rounded-xl bg-muted/30 h-12">
-          <Button variant="ghost" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))}><Minus className="w-3 h-3" /></Button>
-          <span className="w-6 text-center text-sm font-bold">{quantity}</span>
-          <Button variant="ghost" size="icon" onClick={() => setQuantity(quantity + 1)}><Plus className="w-3 h-3" /></Button>
+      <motion.div initial={{ y: 100 }} animate={{ y: 0 }} className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t p-4 flex items-center gap-3 z-50 md:hidden shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+        <div className="flex items-center border rounded-xl bg-slate-50 h-12">
+          <Button variant="ghost" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))}><Minus className="w-3 h-3 text-slate-400" /></Button>
+          <span className="w-6 text-center text-sm font-black">{quantity}</span>
+          <Button variant="ghost" size="icon" onClick={() => setQuantity(quantity + 1)}><Plus className="w-3 h-3 text-slate-400" /></Button>
         </div>
         <Button onClick={handleAddToCart} className="flex-1 h-12 bg-black text-white rounded-xl font-bold text-sm">Add to Cart</Button>
         <Button onClick={handleBuyNow} className="flex-1 h-12 bg-pink-600 hover:bg-pink-700 text-white rounded-xl font-bold text-sm">Buy Now</Button>
