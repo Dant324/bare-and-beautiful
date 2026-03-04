@@ -5,7 +5,6 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Card, CardContent } from './ui/card';
-import { ImageWithFallback } from './figma/ImageWithFallback';
 import { db } from './firebase/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
@@ -55,32 +54,38 @@ export default function ProductsPage({
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
 
-  // Extract unique brands for the filter
+  // Extract unique brands for the filter and popular brands
   const uniqueBrands = ['All Brands', ...new Set(products.map(p => p.brand).filter(Boolean))];
+  const popularBrands = uniqueBrands.slice(1, 6); // top 5 brands for display
 
-  // FIXED SEARCH ENGINE
+  // FILTER PRODUCTS
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-    
-    // Search both Name and Brand strings for accuracy
     const searchLower = searchQuery.toLowerCase();
     const matchesSearch = (product.name?.toLowerCase().includes(searchLower)) ||
                           (product.brand?.toLowerCase().includes(searchLower));
-                          
     const matchesBrand = selectedBrand === 'All Brands' || product.brand === selectedBrand;
     const matchesSkin = selectedSkinType === 'All' || product.skinType === selectedSkinType;
-    
     return matchesCategory && matchesSearch && matchesBrand && matchesSkin;
   });
 
-  // UPDATED SORTING LOGIC
+  // SORT PRODUCTS
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === 'price-low') return a.price - b.price;
     if (sortBy === 'price-high') return b.price - a.price;
-    if (sortBy === 'brand-az') return (a.brand || "").localeCompare(b.brand || ""); // NEW: Sort by Brand Name
+    if (sortBy === 'brand-az') return (a.brand || "").localeCompare(b.brand || "");
     if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
     return 0;
   });
+
+  // BRAND IMAGES PLACEHOLDER
+  const brandImages = {
+    'COSRX': 'https://via.placeholder.com/400x400?text=COSRX',
+    'JUMISO': 'https://via.placeholder.com/400x400?text=JUMISO',
+    'CeraVe': 'https://via.placeholder.com/400x400?text=CeraVe',
+    'The Ordinary': 'https://via.placeholder.com/400x400?text=The+Ordinary',
+    'EQUABERRY': 'https://via.placeholder.com/400x400?text=EQUABERRY',
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -121,7 +126,7 @@ export default function ProductsPage({
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          
+
           {/* Sidebar Filters */}
           <aside className={`lg:w-64 space-y-8 bg-white p-6 rounded-3xl h-fit border border-slate-100 ${isFilterOpen ? 'block' : 'hidden lg:block'}`}>
             <div className="flex items-center justify-between lg:hidden mb-4">
@@ -171,8 +176,37 @@ export default function ProductsPage({
             </div>
           </aside>
 
-          {/* Product Grid Area */}
+          {/* Main Content */}
           <main className="flex-1">
+
+            {/* Popular Brands Section */}
+            <section className="mb-6">
+              <h3 className="text-center font-black uppercase tracking-widest text-[10px] text-slate-400 mb-4">Popular Brands</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 md:gap-6">
+                {popularBrands.map(brand => (
+                  <motion.div
+                    key={brand}
+                    whileHover={{ scale: 1.05 }}
+                    className="cursor-pointer"
+                    onClick={() => setSelectedBrand(brand)}
+                  >
+                    <div className="relative h-28 md:h-32 rounded-3xl overflow-hidden shadow-md">
+                      <img 
+                        src={brandImages[brand] || 'https://via.placeholder.com/400x400?text=Brand'} 
+                        alt={brand} 
+                        className="w-full h-full object-cover" 
+                      />
+                      <div className="absolute inset-0 bg-black/25" />
+                      <div className="absolute inset-0 flex items-center justify-center text-white font-black uppercase tracking-wide text-sm md:text-base">
+                        {brand}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </section>
+
+            {/* Sort & View */}
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-4">
                 <Button variant="outline" className="lg:hidden rounded-full h-10 px-6" onClick={() => setIsFilterOpen(true)}>
@@ -181,7 +215,6 @@ export default function ProductsPage({
                 <h2 className="text-xl font-bold tracking-tight">{filteredProducts.length} Results</h2>
               </div>
               <div className="flex items-center gap-4">
-                {/* NEW: Updated Sort Selector including Brand A-Z */}
                 <select 
                   className="bg-transparent font-bold text-sm outline-none cursor-pointer text-slate-600"
                   value={sortBy}
@@ -199,6 +232,7 @@ export default function ProductsPage({
               </div>
             </div>
 
+            {/* Product Grid */}
             <div className={viewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
               {sortedProducts.map(product => {
                 const discount = product.originalPrice && product.originalPrice > product.price
@@ -224,12 +258,7 @@ export default function ProductsPage({
                       <div className="p-8 bg-white flex-grow flex flex-col justify-between">
                         <div>
                           <p className="text-[10px] text-[#8B4513] font-black uppercase tracking-[0.15em] mb-2">{product.brand}</p>
-                          
-                          {/* REDUCED FONT FOR PRODUCT NAME */}
-                          <h4 className="font-medium text-sm md:text-base text-slate-700 line-clamp-2 leading-tight h-10 mb-2">
-                            {product.name}
-                          </h4>
-                          
+                          <h4 className="font-medium text-sm md:text-base text-slate-700 line-clamp-2 leading-tight h-10 mb-2">{product.name}</h4>
                           <div className="flex items-center gap-1.5">
                              <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400 border-none" />
                              <span className="text-[11px] font-bold text-slate-400">{product.rating || '5.0'}</span>
@@ -250,4 +279,4 @@ export default function ProductsPage({
       </div>
     </div>
   );
-} 
+}
