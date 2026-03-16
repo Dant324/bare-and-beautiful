@@ -132,8 +132,12 @@ export default function ProductDetailPage({
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => onNavigate('products')}><ArrowLeft className="w-4 h-4 mr-2" />Back</Button>
-            <h1 className="text-xl font-bold text-primary hidden md:block">Bare and Beautiful</h1>
-            <h1 className="text-sm font-bold text-primary md:hidden truncate max-w-[120px]">{product.name}</h1>
+             <h1
+            className="text-xl font-bold cursor-pointer"
+            onClick={() => onNavigate("home")}
+          >
+            Bare and Beautiful
+          </h1>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm"><Share2 className="w-4 h-4" /></Button>
