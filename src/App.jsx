@@ -22,6 +22,7 @@ import {
   where, 
   orderBy 
 } from "firebase/firestore";
+import Construction from './components/construction'; // Ensure the path is correct
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('home');
@@ -34,6 +35,7 @@ export default function App() {
   const [featuredProducts, setFeaturedProducts] = useState([]); 
   const [wishlist, setWishlist] = useState([]);
   const [adminLoggedIn, setAdminLoggedIn] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState('All Brands');
 
 const handleNavigate = (screenName) => {
     setCurrentScreen(screenName);
@@ -42,9 +44,14 @@ const handleNavigate = (screenName) => {
   };
 
   // --- Navigation ---
-  const navigateToScreen = (screen) => {
-    setCurrentScreen(screen);
-  };
+  const navigateToScreen = (screen, data = {}) => {
+  if (data.brand) {
+    setSelectedBrand(data.brand);
+  } else {
+    setSelectedBrand('All Brands'); // Reset if just clicking "Shop All"
+  }
+  setCurrentScreen(screen);
+};
 
   // --- Logic Functions ---
   const toggleWishlist = (product) => {
@@ -162,13 +169,20 @@ useEffect(() => {
           cartItemCount={cart.length} 
         />
       ) : currentScreen === 'products' ? (
-        <ProductsPage 
-          onNavigate={navigateToScreen} 
-          user={user} 
-          onViewProduct={viewProduct} 
-          allProducts={products} 
-          cartItemCount={cart.length} 
-        />
+  <ProductsPage 
+    onNavigate={navigateToScreen} 
+    user={user} 
+    onViewProduct={viewProduct} 
+    allProducts={products} 
+    cartItemCount={cart.length} 
+    // Pass the brand state here
+    brand={selectedBrand} 
+    // Reset the brand state when category changes or page is refreshed
+    onSelectCategory={(cat) => {
+       setSelectedBrand('All Brands');
+       // your existing category logic here
+    }}
+  />
       ) : currentScreen === 'product-detail' ? (
         <ProductDetailPage 
           onNavigate={navigateToScreen} 
@@ -207,7 +221,20 @@ useEffect(() => {
           onNavigate={navigateToScreen} 
           onSignup={handleSignup} 
         />
-      ) : null}
+        
+    ) : ['discover', 'contact', 'wishlist', 'help', 'returns', 'shipping'].includes(currentScreen) ? (
+  <Construction 
+    title={
+      currentScreen === 'discover' ? "Discover KHOI" :
+      currentScreen === 'contact' ? "Contact Us" :
+      currentScreen === 'wishlist' ? "My Wishlist" :
+      currentScreen === 'help' ? "Boutique Help" :
+      currentScreen === 'returns' ? "Returns & Exchanges" :
+      "Shipping Policy"
+    } 
+    onBack={() => setCurrentScreen('home')} 
+  />
+) : null}
     </div>
   );
 }

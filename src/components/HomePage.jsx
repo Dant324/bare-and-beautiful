@@ -1,14 +1,19 @@
-import React, { useEffect, useState, useRef } from "react";
-import { motion } from "framer-motion";
+import React, {  useEffect, useState, useRef } from "react";
+import { motion,AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
   Search,
   Star,
+  Menu, 
+  X,
   ArrowRight,
+  Heart,
   User,
   ChevronLeft,
+  ChevronDown,
   ChevronRight,
   Sparkles,
+ 
 } from "lucide-react";
 
 import { Button } from "./ui/button";
@@ -26,14 +31,14 @@ const categories = [
   { id: "cleansers", name: "CLEANSERS", icon: Sparkles },
 ];
 
+
+
 const popularBrands = [
   "COSRX",
-  "JUMISO",
-  "INNISFREE",
-  "LANEIGE",
-  "ETUDE",
-  "BEAUTY OF JOSEON",
-  "EQUABERRY",
+  "SIMPLE",
+  "HADA LABO",
+  "ANUA",
+  "EQQUALBERRY",
 ];
 
 export default function HomePage({
@@ -43,6 +48,8 @@ export default function HomePage({
   onSelectCategory,
   cartItemCount,
 }) {
+  const [showCategoryMenu, setShowCategoryMenu] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [latestReviews, setLatestReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,80 +101,206 @@ export default function HomePage({
 
     fetchData();
   }, []);
+  
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <h1
-            className="text-xl font-bold cursor-pointer"
-            onClick={() => onNavigate("home")}
-          >
-            Bare and Beautiful
-          </h1>
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+  <div className="container mx-auto px-6 py-5 flex items-center justify-between">
 
-          <div className="hidden md:block max-w-md flex-1 mx-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" />
-              <Input
-                placeholder="Search products..."
-                className="pl-10 rounded-full"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleSearchSubmit}
-              />
-            </div>
+    {/* LEFT: MENU + LOGO */}
+    <div className="flex items-center gap-4">
+      <button
+        onClick={() => setShowSidebar(true)}
+        className="p-2 hover:text-pink-600 transition"
+      >
+        <Menu className="w-6 h-6" />
+      </button>
+
+      <h1
+        className="text-xl font-black tracking-[0.25em] cursor-pointer text-slate-900 hover:text-pink-600 transition-colors"
+        onClick={() => onNavigate("home")}
+      >
+        BARE & BEAUTIFUL
+      </h1>
+    </div>
+
+    {/* RIGHT SIDE */}
+    <div className="flex items-center gap-8 md:gap-10">
+
+      {/* SEARCH DESKTOP */}
+      <div className="hidden lg:block relative group">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-pink-600" />
+        <Input
+          placeholder="Search products..."
+          className="pl-11 h-10 w-48 focus:w-72 transition-all duration-500 rounded-full bg-slate-100 border-transparent focus:bg-white"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={handleSearchSubmit}
+        />
+      </div>
+
+      {/* MOBILE SEARCH BUTTON */}
+      <button 
+        onClick={() => setShowMobileSearch(!showMobileSearch)}
+        className="lg:hidden p-2"
+      >
+        <Search className="w-5 cursor-pointer h-5" />
+      </button>
+
+      {/* ACTION ICONS */}
+      <div className="flex items-center gap-6 md:gap-8">
+
+        <button 
+          onClick={() => user ? onNavigate("profile") : onNavigate("login")}
+          className="hover:text-pink-600 cursor-pointer"
+        >
+          <User className="w-5 h-5" />
+        </button>
+
+        <button onClick={() => onNavigate("profile")}>
+          <Heart className="w-5 h-5 cursor-pointer" />
+        </button>
+
+        <button
+          className="relative"
+          onClick={() => onNavigate("cart")}
+        >
+          <ShoppingBag className="w-5 h-5 cursor-pointer" />
+          {cartItemCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full">
+              {cartItemCount}
+            </span>
+          )}
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  {/* MOBILE SEARCH DROPDOWN (UNCHANGED) */}
+  <AnimatePresence>
+    {showMobileSearch && (
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: 'auto', opacity: 1 }}
+        exit={{ height: 0, opacity: 0 }}
+        className="absolute top-full left-0 right-0 bg-white border-b lg:hidden"
+      >
+        <div className="px-6 py-4 flex gap-3">
+          <Input
+            autoFocus
+            placeholder="Search..."
+            className="h-12 rounded-full bg-slate-50"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearchSubmit}
+          />
+          <button onClick={() => setShowMobileSearch(false)}>Close</button>
+        </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+
+  {/* SIDEBAR */}
+  <AnimatePresence>
+    {showSidebar && (
+<>
+      
+        {/* OVERLAY */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setShowSidebar(false)}
+          className="fixed  inset-0 bg-black/40 z-40 cursor-pointer"
+        />
+
+        {/* PANEL */}
+        <motion.div
+          initial={{ x: "-100%" }}
+          animate={{ x: 0 }}
+          exit={{ x: "-100%" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className="fixed top-0  left-0 h-full w-72 bg-white z-50 shadow-2xl p-6 flex flex-col"
+        >
+          {/* CLOSE */}
+          <div className="flex  justify-between items-center mb-10">
+          
+            <button onClick={() => setShowSidebar(false)}>
+              <X className="w-5 cursor-pointer h-5" />
+            </button>
           </div>
 
-          <div className="flex items-center gap-3">
-            {user ? (
-              <Button variant="ghost" onClick={() => onNavigate("profile")}>
-                <User className="w-4 h-4 mr-2" />
-                {user.name}
-              </Button>
-            ) : (
-              <Button variant="ghost" onClick={() => onNavigate("login")}>
-                Sign In
-              </Button>
-            )}
+          {/* LINKS */}
+<div className="flex flex-col gap-6 text-sm font-semibold overflow-hidden">
 
-            <Button
-              variant="ghost"
-              className="relative"
-              onClick={() => onNavigate("cart")}
+  {/* MAIN SHOP BUTTON WITH FLIP/REVEAL ANIMATION */}
+  <div className="flex flex-col border-b border-slate-100 pb-4">
+    <button
+      onClick={() => setShowCategoryMenu(!showCategoryMenu)}
+      className="flex justify-between items-center text-left cursor-pointer hover:text-pink-600 transition-all uppercase tracking-widest text-[11px] font-black"
+    >
+      Shop by Category
+      <motion.div
+        animate={{ rotate: showCategoryMenu ? 180 : 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <ChevronDown className="w-4 h-4 opacity-50" />
+      </motion.div>
+    </button>
+
+    {/* AESTHETIC REVEAL AREA */}
+    <AnimatePresence>
+      {showCategoryMenu && (
+        <motion.div
+          initial={{ rotateX: -90, opacity: 0, height: 0 }}
+          animate={{ rotateX: 0, opacity: 1, height: "auto" }}
+          exit={{ rotateX: -90, opacity: 0, height: 0 }}
+          transition={{ duration: 0.5, ease: "circOut" }}
+          style={{ transformOrigin: "top" }}
+          className="flex flex-col gap-4 mt-6 pl-4 border-l border-pink-100"
+        >
+          {['Skincare', 'Fragrance', 'Hair Care', 'Body Care'].map((item) => (
+            <motion.button
+              key={item}
+              whileHover={{ x: 5, color: "#db2777" }}
+              onClick={() => {
+                onSelectCategory(item.toLowerCase().replace(' ', ''));
+                onNavigate("products");
+                setShowSidebar(false);
+              }}
+              className="text-left text-xs text-slate-400 font-bold uppercase tracking-[0.2em] transition-colors"
             >
-              <ShoppingBag className="w-4 h-4" />
-              {cartItemCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 text-xs rounded-full">
-                  {cartItemCount}
-                </Badge>
-              )}
-            </Button>
-          </div>
-        </div>
+              {item}
+            </motion.button>
+          ))}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
 
-        {/* SIMPLE NAV BAR */}
-        <div className="border-t bg-white">
-          <div className="container mx-auto px-4 py-3 flex justify-center gap-8 text-sm font-semibold text-slate-600">
-            <button onClick={() => onNavigate("products")} className="hover:text-pink-600">
-              Shop
-            </button>
+  {/* REMAINING LINKS */}
+  <button
+    onClick={() => { onNavigate("discover"); setShowSidebar(false); }}
+    className="text-left cursor-pointer hover:text-pink-600 uppercase tracking-widest text-[11px] font-black"
+  >
+    Discover
+  </button>
 
-            <button onClick={() => onNavigate("discover")} className="hover:text-pink-600">
-              Discover
-            </button>
-
-            <button onClick={() => onNavigate("about")} className="hover:text-pink-600">
-              About Us
-            </button>
-
-            <button onClick={() => onNavigate("contact")} className="hover:text-pink-600">
-              Contact
-            </button>
-          </div>
-        </div>
-      </header>
+  <button
+    onClick={() => { onNavigate("contact"); setShowSidebar(false); }}
+    className="text-left cursor-pointer hover:text-pink-600 uppercase tracking-widest text-[11px] font-black"
+  >
+    Contact
+  </button>
+</div>
+        </motion.div>
+      </>
+    )}
+  </AnimatePresence>
+</header>
 
       {/* HERO */}
       <section className="py-16 bg-gradient-to-br from-pink-50 to-orange-50">
@@ -178,13 +311,13 @@ export default function HomePage({
               <span className="text-pink-600 italic">Natural Glow</span>
             </h2>
 
-            <Button size="lg" className="rounded-full" onClick={() => onNavigate("products")}>
+            <Button size="lg" className="cursor-pointer rounded-full" onClick={() => onNavigate("products")}>
               Shop Now <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
 
           {/* MOVING PRODUCTS */}
-          <div className="relative h-72 md:h-96 flex items-center overflow-hidden">
+          <div className="relative h-72 md:h-96  flex items-center overflow-hidden">
             <motion.div
               animate={{ x: ["0%", "-20%"] }}
               transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
@@ -316,30 +449,20 @@ export default function HomePage({
       Popular Brands
     </h3>
 
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 md:gap-6">
-      {popularBrands.map((brand) => (
+    <div className="grid  grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 md:gap-6">
+      {popularBrands.map((brandName) => (
         <motion.button
-          key={brand}
+          key={brandName}
           whileHover={{ scale: 1.06 }}
           whileTap={{ scale: 0.96 }}
-          onClick={() => onNavigate("products", { brand })}
-          className="
-            h-20 md:h-24
-            rounded-2xl
-            bg-gradient-to-br from-slate-50 to-white
-            border border-slate-200
-            shadow-sm
-            hover:shadow-lg
-            hover:border-slate-300
-            transition-all
-            flex items-center justify-center
-            font-bold
-            text-sm md:text-base
-            tracking-wide
-            text-slate-800
-          "
+          onClick={() => {
+            // 1. Tell App.jsx which brand we want (if you passed a setter prop)
+            // Or use the navigate function if you updated it to handle objects
+            onNavigate("products", { brand: brandName }); 
+          }}
+          className="h-20 cursor-pointer md:h-24 rounded-2xl bg-gradient-to-br from-slate-50 to-white border border-slate-200 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all flex items-center justify-center font-bold text-sm md:text-base tracking-wide text-slate-800"
         >
-          {brand}
+          {brandName}
         </motion.button>
       ))}
     </div>
@@ -456,7 +579,7 @@ export default function HomePage({
           </div>
 
           <div
-            className="mt-20 pt-10 border-t border-slate-100 text-center text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] cursor-pointer hover:text-slate-900 transition-colors"
+            className="mt-20 pt-10 border-t border-slate-100 text-center text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] hover:text-slate-900 transition-colors"
             onClick={() => onNavigate('admin-login')}
           >
             © 2024 Bare and Beautiful Boutique. Radiance, Redefined.
