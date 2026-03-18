@@ -212,10 +212,11 @@ useEffect(() => {
           onViewProduct={viewProduct} 
         />
       ) : currentScreen === 'login' ? (
-        <LoginScreen 
-          onNavigate={navigateToScreen} 
-          onLogin={u => {setUser({email: u, name: u.split('@')[0]}); setCurrentScreen('home');}} 
-        />
+        // NEW SECURE VERSION
+            <LoginScreen 
+             onNavigate={navigateToScreen} 
+  // onLogin is no longer needed if we handle auth in the LoginScreen itself
+            />
       ) : currentScreen === 'signup' ? (
         <SignupScreen 
           onNavigate={navigateToScreen} 

@@ -5,23 +5,30 @@ import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { auth } from "./firebase/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function LoginScreen({ onNavigate, onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    // This line verifies the password with Firebase
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    
+    // If successful, Firebase's onAuthStateChanged in App.jsx will 
+    // automatically detect the user and log them in safely.
+    onNavigate('home'); 
+  } catch (error) {
+    console.error("Login failed:", error.message);
+    alert("Invalid email or password. Please try again.");
+  }
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    onLogin(email, password);
-    setIsLoading(false);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-orange-50 to-purple-50 flex flex-col items-center justify-center p-6">
