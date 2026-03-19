@@ -1,0 +1,75 @@
+{/* FULL-SCREEN HERO SLIDESHOW */}
+<section className="relative min-h-screen lg:min-h-[120vh] w-full flex items-center overflow-hidden bg-slate-900">
+  
+  {loading ? (
+    <div className=" absolute inset-0 z-0 overflow-hidden flex items-center justify-center bg-[#fdfcfb]">
+      <motion.p 
+        animate={{ opacity: [0.4, 1, 0.4] }}
+        transition={{ repeat: Infinity, duration: 2 }}
+        className="text-[10px] font-black uppercase tracking-[0.5em] text-pink-300"
+      >
+        Curating Radiance...
+      </motion.p>
+    </div>
+  ) : (
+    <>
+      {/* 🔥 BACKGROUND IMAGE STACK (SLIDESHOW) */}
+      <div className="absolute inset-0">
+        {featuredProducts.map((product, index) => (
+          <motion.img
+            key={product.id}
+            src={product.image}
+            alt="background"
+            className="absolute w-full h-full object-cover"
+            
+            initial={{ opacity: 0, scale: 1.4 }}
+animate={{
+  opacity: index === currentHero ? 1 : 0,
+  scale: index === currentHero ? 1.15 : 1.4,
+}}
+            transition={{ duration: 2, ease: "easeInOut" }}
+            
+            style={{ zIndex: index === currentHero ? 1 : 0 }}
+          />
+        ))}
+      </div>
+
+      {/* 🔥 DARK OVERLAY */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent z-10" />
+
+      {/* 🔥 CONTENT */}
+      <div className="container mx-auto px-6 h-full flex items-center relative z-20">
+        <div className="max-w-2xl space-y-6 text-white">
+          
+          <motion.div 
+            key={currentHero}
+            initial={{ y: 40, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1 }}
+          >
+            <p className="text-[10px] font-black uppercase tracking-[0.5em] text text-pink-400 mb-4">
+              {featuredProducts[currentHero]?.brand || "Bare & Beautiful"}
+            </p>
+
+            <h2 className="text-8xl md:text-[11rem] leading-[0.85] text-black font-black tracking-tighter">
+              {featuredProducts[currentHero]?.name?.split(" ")[0]}
+              <br />
+              <span className="not-italic opacity-80 text-black">
+                Collection
+              </span>
+            </h2>
+
+            <Button 
+              onClick={() => onViewProduct(featuredProducts[currentHero])}
+              className="bg-white text-black hover:bg-pink-600 hover:text-white rounded-full px-12 h-14 font-black uppercase text-xs tracking-widest transition-all shadow-2xl"
+            >
+              Explore the Edit
+            </Button>
+          </motion.div>
+
+        </div>
+      </div>
+    </>
+  )}
+  <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-b from-transparent to-white z-20" />
+</section>

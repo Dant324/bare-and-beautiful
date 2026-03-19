@@ -170,11 +170,10 @@ export default function AdminPanel({ onNavigate }) {
       {/* HEADER SECTION */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between mb-10 items-start md:items-center gap-6">
         <div className="flex items-center gap-4">
-          <button onClick={() => onNavigate('home')} className="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 hover:text-pink-500 transition-colors">
-            <ArrowLeft className="w-6 h-6" />
-          </button>
+
           <div>
             <h1 className="text-3xl font-black tracking-tighter flex items-center gap-2">
+              
               <LayoutDashboard className="w-8 h-8 text-pink-500" /> Admin Dashboard
             </h1>
           </div>

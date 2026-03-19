@@ -54,6 +54,7 @@ export default function HomePage({
   const [latestReviews, setLatestReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentHero, setCurrentHero] = useState(0);
 
   const scrollRef = useRef(null);
 
@@ -62,7 +63,7 @@ export default function HomePage({
       onNavigate("products", { search: searchQuery });
     }
   };
-
+  
   const scroll = (direction) => {
     if (scrollRef.current) {
       const { scrollLeft, clientWidth } = scrollRef.current;
@@ -74,33 +75,52 @@ export default function HomePage({
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
 
-        const pQuery = query(collection(db, "products"), where("featured", "==", true));
-        const pSnapshot = await getDocs(pQuery);
+      // Query for background hero images
+      const pQuery = query(collection(db, "products"), where("featured", "==", true));
+      const pSnapshot = await getDocs(pQuery);
+      
+      // FIX: Correctly defining 'fetched' from the snapshot
+      const fetchedItems = pSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-        setFeaturedProducts(pSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-
-        const rQuery = query(
-          collection(db, "reviews"),
-          where("rating", ">=", 4),
-          orderBy("date", "desc"),
-          limit(4)
-        );
-
-        const rSnapshot = await getDocs(rQuery);
-        setLatestReviews(rSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+      setFeaturedProducts(fetchedItems);
+      
+      if (fetchedItems.length === 0) {
+        console.warn("No products found with featured: true in Firestore.");
       }
-    };
 
-    fetchData();
-  }, []);
+      // Query for customer reviews
+      const rQuery = query(
+        collection(db, "reviews"),
+        where("rating", ">=", 4),
+        orderBy("date", "desc"),
+        limit(4)
+      );
+
+      const rSnapshot = await getDocs(rQuery);
+      setLatestReviews(rSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+    } catch (err) {
+      console.error("Detailed Firestore Error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
+
+// 3. Auto-Slide Timer (Cinematic Background Movement)
+useEffect(() => {
+  if (featuredProducts.length > 0) {
+    const timer = setInterval(() => {
+      setCurrentHero((prev) => (prev + 1) % featuredProducts.length);
+    }, 5000); 
+    return () => clearInterval(timer);
+  }
+}, [featuredProducts.length]);
   
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
@@ -267,7 +287,8 @@ export default function HomePage({
               key={item}
               whileHover={{ x: 5, color: "#db2777" }}
               onClick={() => {
-                onSelectCategory(item.toLowerCase().replace(' ', ''));
+                const categoryId=(item.toLowerCase().replace(' ', ''));
+                onSelectCategory(categoryId);
                 onNavigate("products");
                 setShowSidebar(false);
               }}
@@ -302,52 +323,69 @@ export default function HomePage({
   </AnimatePresence>
 </header>
 
-      {/* HERO */}
-      <section className="py-16 bg-gradient-to-br from-pink-50 to-orange-50">
-        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
-          <div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Discover Your <br />
-              <span className="text-pink-600 italic">Natural Glow</span>
-            </h2>
 
-            <Button size="lg" className="cursor-pointer rounded-full" onClick={() => onNavigate("products")}>
-              Shop Now <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
+{/* FULL-SCREEN HERO SLIDESHOW */}
+<section className="relative min-h-screen lg:min-h-[120vh] w-full flex items-center justify-center overflow-hidden bg-slate-900">
+  
+  {loading ? (
+    <div className=" absolute inset-0 z-0 overflow-hidden flex items-center justify-center bg-[#fdfcfb]">
+      <motion.p 
+        animate={{ opacity: [0.4, 1, 0.4] }}
+        transition={{ repeat: Infinity, duration: 2 }}
+        className="text-[10px] font-black uppercase tracking-[0.5em] text-pink-300"
+      >
+        Curating Radiance...
+      </motion.p>
+    </div>
+  ) : (
+    <>
+      {/* 🔥 BACKGROUND IMAGE STACK (SLIDESHOW) */}
+      <div className="absolute inset-0">
+        {featuredProducts.map((product, index) => (
+    <motion.div
+      key={product.id}
+      className="absolute inset-0"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: index === currentHero ? 1 : 0 }}
+      transition={{ duration: 1.5 }}
+    >
+      <img src={product.image} className="w-full h-full object-cover" alt="Hero" />
+      {/* Darker overlay for text legibility */}
+      <div className="absolute inset-0 bg-black/30" />
+    </motion.div>
+  ))}
+  
+  <div className="relative z-10 text-center text-black space-y-8">
+    <motion.h2 
+      key={currentHero}
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className="text-6xl md:text-8xl font-light tracking-tighter uppercase"
+    >
+      {featuredProducts[currentHero]?.name}
+    </motion.h2>
+    <button className="border border-white px-10 py-3 text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text- transition-all duration-500"
+    onClick={() => onViewProduct(featuredProducts[currentHero])}
+    >
+      Explore the Edit
+    </button>
 
-          {/* MOVING PRODUCTS */}
-          <div className="relative h-72 md:h-96  flex items-center overflow-hidden">
-            <motion.div
-              animate={{ x: ["0%", "-20%"] }}
-              transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
-              className="flex gap-8"
-            >
-              {[...featuredProducts, ...featuredProducts].map((product, index) => (
-                <div
-                  key={index}
-                  className="w-40 h-40 md:w-56 md:h-56 bg-white rounded-3xl shadow-lg overflow-hidden"
-                >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </motion.div>
-          </div>
         </div>
-      </section>
+      </div>
+    </>
+  )}
+</section>
+
+
 
      {/* FEATURED PRODUCTS - SCROLL BUTTONS & HOVER POP */}
                  <motion.section
                    initial={{ y: 50, opacity: 0 }}
                    animate={{ y: 0, opacity: 1 }}
                    transition={{ duration: 0.6, delay: 0.4 }}
-                   className="py-16 bg-white overflow-hidden"
+                   className="relative py-32 lg:py-48 bg-white overflow-hidden z-30"
                  >
-                   <div className="container mx-auto px-4">
+                   <div className="container mx-auto px-6">
                      <div className="flex justify-between items-end mb-10">
                        <div>
                          <h3 className="text-3xl font-bold tracking-tight">Featured Essentials</h3>
