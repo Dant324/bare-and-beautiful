@@ -76,6 +76,7 @@ export default function ProductsPage({
   }); 
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
+    
     if (sortBy === 'price-low') return a.price - b.price;
     if (sortBy === 'price-high') return b.price - a.price;
     if (sortBy === 'brand-az') return (a.brand || "").localeCompare(b.brand || "");
@@ -83,8 +84,42 @@ export default function ProductsPage({
     return 0;
   });
 
+const containerVariants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.12,
+delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { 
+    opacity: 0, 
+    y: 60, 
+    scale: 0.95 
+  },
+  show: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 120,
+      damping: 18,
+      mass: 0.6
+    }
+  }
+};
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6, ease: "easeOut" }}
+  className="min-h-screen bg-slate-50"
+>
 
       {/* Header */}
 
@@ -134,8 +169,14 @@ export default function ProductsPage({
 
           {/* Sidebar */}
 
-          <aside className={`lg:w-64 space-y-8 bg-white p-6 rounded-3xl h-fit border border-slate-100 ${isFilterOpen ? 'block' : 'hidden lg:block'}`}>
-
+         <motion.aside
+  initial={{ opacity: 0, x: -40 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.4 }}
+  className={`lg:w-64 space-y-8 bg-white p-6 rounded-3xl h-fit border border-slate-100 ${
+    isFilterOpen ? 'block' : 'hidden lg:block'
+  }`}
+>
             <div className="flex items-center justify-between lg:hidden mb-4">
               <h3 className="font-bold">Filters</h3>
               <X className="cursor-pointer" onClick={() => setIsFilterOpen(false)} />
@@ -174,17 +215,23 @@ export default function ProductsPage({
 
               <div className="flex flex-wrap gap-2">
                 {skinTypes.map(type => (
-                  <Badge
-                    key={type}
-                    onClick={() => setSelectedSkinType(type)}
-                    className={`cursor-pointer px-3 py-1 rounded-full border shadow-none font-medium
-                      ${selectedSkinType === type
-                        ? 'bg-pink-600 text-black border-pink-600'
-                        : 'bg-white text-slate-500 border-slate-200'
-                      }`}
-                  >
-                    {type}
-                  </Badge>
+                  <motion.div
+                  key={type}
+             whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.85 }}
+>
+  <Badge
+    onClick={() => setSelectedSkinType(type)}
+    className={`cursor-pointer px-3 py-1 rounded-full border shadow-none font-medium
+      ${selectedSkinType === type
+        ? 'bg-pink-600 text-black border-pink-600'
+        : 'bg-white text-slate-500 border-slate-200'
+      }`}
+  >
+    {type}
+  </Badge>
+</motion.div>
+  
                 ))}
               </div>
             </div>
@@ -207,7 +254,7 @@ export default function ProductsPage({
               </select>
             </div>
 
-          </aside>
+          </motion.aside>
 
           {/* Main */}
 
@@ -234,9 +281,10 @@ export default function ProductsPage({
                 {popularBrands.map(brand => (
 
                   <motion.button
-                    key={brand}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                   key={brand}
+                   whileHover={{ scale: 1.1 }}
+                   whileTap={{ scale: 0.9 }}
+                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                     onClick={() => setSelectedBrand(brand)}
                    className={`px-7 py-3.5 rounded-full text-base font-semibold shadow-sm hover:shadow-md
                     ${selectedBrand === brand
@@ -293,8 +341,12 @@ export default function ProductsPage({
 
             {/* Products */}
 
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
+            <motion.div
+  variants={containerVariants}
+  initial="hidden"
+  animate="show"
+  className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6"
+>
               {sortedProducts.map(product => {
 
                 const discount =
@@ -304,20 +356,21 @@ export default function ProductsPage({
 
                 return (
 
-                  <Card
+                  <motion.div variants={itemVariants}>
+  <Card
                     key={product.id}
-                    className="cursor-pointer group hover:shadow-2xl transition-all duration-500 border-none rounded-[2.5rem] shadow-sm overflow-hidden"
-                    onClick={() => onViewProduct(product)}
+                    className="cursor-pointer group transition-all duration-500 border-none rounded-[2.5rem] shadow-sm overflow-hidden hover:shadow-2xl hover:-translate-y-2"                    onClick={() => onViewProduct(product)}
+                
                   >
 
                     <CardContent className="p-0 flex flex-col h-full">
 
                       <div className="relative bg-slate-50 flex items-center justify-center p-6 aspect-square">
 
-                        <img
-                          src={product.image}
+                      
+                        <img src={product.image}
                           alt={product.name}
-                          className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700"
+                         className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                         />
 
                         {discount && (
@@ -369,17 +422,19 @@ export default function ProductsPage({
 
                   </Card>
 
+                  </motion.div>
+
                 )
 
               })}
 
-            </div>
+            </motion.div>
 
           </main>
 
         </div>
       </div>
 
-    </div>
+    </motion.div>
   );
 }
