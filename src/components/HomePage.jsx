@@ -123,6 +123,7 @@ useEffect(() => {
 }, [featuredProducts.length]);
   
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const HERO_HEIGHT = "50vh"; // change this whenever you want
 
   return (
     <div className="min-h-screen bg-background">
@@ -325,7 +326,11 @@ useEffect(() => {
 
 
 {/* FULL-SCREEN HERO SLIDESHOW */}
-<section className="relative min-h-screen lg:min-h-[120vh] w-full flex items-center justify-center overflow-hidden bg-slate-900">
+
+<section 
+  style={{ height: HERO_HEIGHT }}
+  className="relative w-full flex items-center justify-center overflow-hidden bg-slate-900"
+>
   
   {loading ? (
     <div className=" absolute inset-0 z-0 overflow-hidden flex items-center justify-center bg-[#fdfcfb]">
@@ -392,13 +397,14 @@ useEffect(() => {
                          <p className="text-muted-foreground mt-1 font-medium italic">Hand-picked boutique favorites</p>
                        </div>
                        <div className="flex items-center gap-4">
-                         <Button 
-                           variant="link" 
-                           className="text-pink-600 font-bold hidden sm:flex items-center gap-2 hover:no-underline hover:text-pink-700"
-                           onClick={() => onNavigate('products')}
-                         >
-                           View Full Catalog <ArrowRight className="w-4 h-4" />
-                         </Button>
+                         <motion.button
+  onClick={() => onNavigate('products')}
+  whileHover={{ scale: 1.08 }}
+  whileTap={{ scale: 0.95 }}
+  className="hidden sm:flex items-center gap-2 bg-pink-600 text-black px-6 py-3 rounded-full text-sm font-bold shadow-lg hover:bg-pink-700 transition-all"
+>
+  Shop Now <ArrowRight className="w-4 h-4" />
+</motion.button>
                          <div className="flex gap-2">
                            <Button variant="outline" size="icon" className="rounded-full border-slate-200 hover:bg-pink-50 hover:text-pink-600" onClick={() => scroll('left')}>
                              <ChevronLeft className="w-5 h-5" />
