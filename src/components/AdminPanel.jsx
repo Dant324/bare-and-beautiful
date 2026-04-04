@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { db, auth } from "./firebase/firebase";
 import { 
-  collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, orderBy 
+  collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, orderBy,serverTimestamp 
 } from "firebase/firestore"; 
 import { signOut } from "firebase/auth";
 import { ArrowLeft, LayoutDashboard, Trash2, Edit3, LogOut, MessageSquare, Package } from "lucide-react";
@@ -33,7 +33,7 @@ export default function AdminPanel({ onNavigate }) {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const q = query(productsRef, orderBy("name"));
+      const q = query(productsRef, orderBy("createdAt", "desc"));
       const snapshot = await getDocs(q);
       setProducts(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch (err) {
@@ -85,6 +85,7 @@ export default function AdminPanel({ onNavigate }) {
       const newProduct = {
         ...form,
         price: Number(form.price) || 0,
+        createdAt: serverTimestamp(),
         originalPrice: form.originalPrice ? Number(form.originalPrice) : null,
         ingredients: form.ingredients ? form.ingredients.split(",").map(i => i.trim()) : [],
         benefits: form.benefits ? form.benefits.split(",").map(i => i.trim()) : [],

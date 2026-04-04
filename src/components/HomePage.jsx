@@ -74,56 +74,56 @@ export default function HomePage({
     }
   };
 
+  const [gridProducts, setGridProducts] = useState([]);
   useEffect(() => {
   const fetchData = async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      // Query for background hero images
-      const pQuery = query(collection(db, "products"), where("featured", "==", true));
-      const pSnapshot = await getDocs(pQuery);
-      
-      // FIX: Correctly defining 'fetched' from the snapshot
-      const fetchedItems = pSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    // 1. HERO QUERY: Latest 5 for the big slider
+    const heroQ = query(
+      collection(db, "products"),
+      orderBy("createdAt", "desc"),
+      limit(5)
+    );
+    const heroSnap = await getDocs(heroQ);
+    setFeaturedProducts(heroSnap.docs.map(d => ({ id: d.id, ...d.data() })));
 
-      setFeaturedProducts(fetchedItems);
-      
-      if (fetchedItems.length === 0) {
-        console.warn("No products found with featured: true in Firestore.");
-      }
+    // 2. FEATURED SECTION: Random or "Featured" items (Different from Hero)
+    // Here we query products where "featured" is true but NOT limited to 5
+    const featuredQ = query(
+      collection(db, "products"),
+      where("featured", "==", true),
+      orderBy("name") // Different sorting so they don't match the Hero exactly
+    );
+    const featSnap = await getDocs(featuredQ);
+    
+    // Set a different state for the horizontal scroll section
+    setGridProducts(featSnap.docs.map(d => ({ id: d.id, ...d.data() })));
 
-      // Query for customer reviews
-      const rQuery = query(
-        collection(db, "reviews"),
-        where("rating", ">=", 4),
-        orderBy("date", "desc"),
-        limit(4)
-      );
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
-      const rSnapshot = await getDocs(rQuery);
-      setLatestReviews(rSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-    } catch (err) {
-      console.error("Detailed Firestore Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   fetchData();
 }, []);
 
-// 3. Auto-Slide Timer (Cinematic Background Movement)
-useEffect(() => {
-  if (featuredProducts.length > 0) {
-    const timer = setInterval(() => {
-      setCurrentHero((prev) => (prev + 1) % featuredProducts.length);
-    }, 5000); 
-    return () => clearInterval(timer);
-  }
-}, [featuredProducts.length]);
-  
+
+
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const HERO_HEIGHT = "50vh"; // change this whenever you want
+  const heroTextColor = featuredProducts[currentHero]?.themeColor || "white";
+ const HERO_CONFIG = {
+  dotsRight: 20,
+  dotsBottom: 10,
+  buttonBottom:50,
+  buttonRight:20,
+  dotSize: 10
+};
 
   return (
     <div className="min-h-screen bg-background">
@@ -327,60 +327,131 @@ useEffect(() => {
 
 {/* FULL-SCREEN HERO SLIDESHOW */}
 
-<section 
+<section
   style={{ height: HERO_HEIGHT }}
-  className="relative w-full flex items-center justify-center overflow-hidden bg-slate-900"
+  className="relative w-full overflow-hidden flex items-center justify-center"
 >
-  
-  {loading ? (
-    <div className=" absolute inset-0 z-0 overflow-hidden flex items-center justify-center bg-[#fdfcfb]">
-      <motion.p 
-        animate={{ opacity: [0.4, 1, 0.4] }}
-        transition={{ repeat: Infinity, duration: 2 }}
-        className="text-[10px] font-black uppercase tracking-[0.5em] text-pink-300"
-      >
-        Curating Radiance...
-      </motion.p>
-    </div>
-  ) : (
-    <>
-      {/* 🔥 BACKGROUND IMAGE STACK (SLIDESHOW) */}
-      <div className="absolute inset-0">
-        {featuredProducts.map((product, index) => (
-    <motion.div
-      key={product.id}
-      className="absolute inset-0"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: index === currentHero ? 1 : 0 }}
-      transition={{ duration: 1.5 }}
-    >
-      <img src={product.image} className="w-full h-full object-cover" alt="Hero" />
-      {/* Darker overlay for text legibility */}
-      <div className="absolute inset-0 bg-black/30" />
-    </motion.div>
-  ))}
-  
-  <div className="relative z-10 text-center text-black space-y-8">
-    <motion.h2 
-      key={currentHero}
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      className="text-6xl md:text-8xl font-light tracking-tighter uppercase"
-    >
-      {featuredProducts[currentHero]?.name}
-    </motion.h2>
-    <button className="border border-white px-10 py-3 text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text- transition-all duration-500"
+
+{loading ? (
+<div className="absolute inset-0 flex items-center justify-center bg-[#fdfcfb]">
+<motion.p
+animate={{ opacity:[0.4,1,0.4] }}
+transition={{ repeat:Infinity, duration:2 }}
+className="text-[10px] font-black uppercase tracking-[0.5em] text-pink-300"
+>
+Curating Radiance...
+</motion.p>
+</div>
+) : (
+<>
+
+{/* BACKGROUND SLIDES */}
+<div className="absolute inset-0">
+
+{featuredProducts.map((product,index)=>{
+
+const active = index === currentHero
+
+return(
+<motion.div
+key={product.id}
+className="absolute inset-0"
+initial={{ opacity:0 }}
+animate={{ opacity: active ? 1 : 0 }}
+transition={{ duration:1 }}
+drag="x"
+dragConstraints={{ left:0, right:0 }}
+onDragEnd={(e,info)=>{
+
+if(info.offset.x < -80){
+setCurrentHero((prev)=>(prev+1)%featuredProducts.length)
+}
+
+if(info.offset.x > 80){
+setCurrentHero((prev)=> prev===0 ? featuredProducts.length-1 : prev-1)
+}
+
+}}
+>
+
+<img
+src={product.image}
+className="w-full h-full object-cover object-center md:object-top lg:object-center"
+alt={product.name}
+/>
+
+<div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 md:bg-black/30" />
+
+</motion.div>
+)
+
+})}
+
+</div>
+
+
+{/* HERO TEXT */}
+<div className="relative z-10 text-center px-6 max-w-[900px]">
+
+<motion.div
+key={currentHero}
+initial={{ opacity:0, y:30 }}
+animate={{ opacity:1, y:0 }}
+transition={{ duration:0.6 }}
+className="space-y-6"
+>
+
+
+
+
+
+</motion.div>
+
+</div>
+
+
+{/* FIXED CONTROL ANCHOR - BOTTOM RIGHT */}
+<div 
+  className="absolute z-40 flex flex-col items-center md:items-end gap-6"
+  style={{ 
+    right: 'clamp(20px, 5vw, 60px)', // Adaptive spacing from right
+    bottom: `${HERO_CONFIG.dotsBottom}px` 
+  }}
+>
+  {/* EXPLORE BUTTON - Sits above dots */}
+  <motion.button
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
     onClick={() => onViewProduct(featuredProducts[currentHero])}
-    >
-      Explore the Edit
-    </button>
+    className="border border-white/40 backdrop-blur-md text-black px-8 py-3 text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-500 shadow-2xl"
+  >
+    Explore the Edit
+  </motion.button>
 
-        </div>
-      </div>
-    </>
-  )}
+  {/* NAVIGATION DOTS - Grayscale Logic */}
+  <div className="flex gap-3 px-2 py-1">
+    {featuredProducts.map((_, index) => (
+      <button
+        key={index}
+        onClick={() => setCurrentHero(index)}
+        style={{ 
+          width: currentHero === index ? '24px' : `${HERO_CONFIG.dotSize}px`, 
+          height: `${HERO_CONFIG.dotSize}px` 
+        }}
+        className={`rounded-full transition-all duration-500 shadow-sm border border-black/5
+          ${currentHero === index 
+            ? "bg-black"               // Active: Solid Black
+            : "bg-slate-300 hover:bg-slate-400" // Inactive: Grey
+          }`}
+      />
+    ))}
+  </div>
+</div>
+
+</>
+)}
+
 </section>
-
 
 
      {/* FEATURED PRODUCTS - SCROLL BUTTONS & HOVER POP */}
@@ -401,7 +472,7 @@ useEffect(() => {
   onClick={() => onNavigate('products')}
   whileHover={{ scale: 1.08 }}
   whileTap={{ scale: 0.95 }}
-  className="hidden sm:flex items-center gap-2 bg-pink-600 text-black px-6 py-3 rounded-full text-sm font-bold shadow-lg hover:bg-pink-700 transition-all"
+  className="items-center gap-2 bg-pink-600 text-black px-6 py-3 rounded-full text-sm font-bold shadow-lg hover:bg-pink-700 transition-all"
 >
   Shop Now <ArrowRight className="w-4 h-4" />
 </motion.button>
@@ -422,7 +493,7 @@ useEffect(() => {
                        </div>
                      ) : (
                        <div ref={scrollRef} className="flex gap-6 overflow-x-auto pb-10 snap-x snap-mandatory no-scrollbar scroll-smooth">
-                         {featuredProducts.map((product) => {
+                         {gridProducts.map((product) => {
                            const discount = product.originalPrice && product.originalPrice > product.price
                              ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
                              : null;
