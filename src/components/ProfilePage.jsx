@@ -40,7 +40,17 @@ export default function ProfilePage({
 
   if (!user) {
     return (
+      
       <div className="min-h-screen bg-background flex items-center justify-center p-6 text-center">
+        <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                onClick={() => onNavigate('home')}
+                className="absolute top-6 left-6 p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110"
+              >
+                <ArrowLeft className="w-5 h-5 text-black-600" />
+              </motion.button>
         <div>
           <User className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-2xl font-bold mb-2">Sign In Required</h2>

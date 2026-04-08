@@ -127,7 +127,7 @@ export default function HomePage({
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
   <div className="container mx-auto px-6 py-5 flex items-center justify-between">
 
     {/* LEFT: MENU + LOGO */}
@@ -136,17 +136,21 @@ export default function HomePage({
         onClick={() => setShowSidebar(true)}
         className="p-2 hover:text-pink-600 transition"
       >
-        <Menu className="w-6 h-6" />
+        <Menu className="w-6 h-6 " />
       </button>
 
-      <h1
-        className="text-xl font-black tracking-[0.25em] cursor-pointer text-slate-900 hover:text-pink-600 transition-colors"
-        onClick={() => onNavigate("home")}
-      >
-        BARE & BEAUTIFUL
-      </h1>
     </div>
 
+{/* MIDDLE: THE NEW MONOGRAM LOGO */}
+    <div className="flex justify-center">
+      <img 
+        src="/assets/whitelogo.png" 
+        alt="Bare & Beautiful Logo"
+        className="h-12 md:h-16 w-auto cursor-pointer object-contain hover:opacity-80 transition-opacity"
+        onClick={() => onNavigate("home")}
+      />
+    </div>
+    
     {/* RIGHT SIDE */}
     <div className="flex items-center gap-8 md:gap-10">
 

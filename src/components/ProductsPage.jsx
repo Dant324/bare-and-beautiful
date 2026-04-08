@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Search, Star, ArrowLeft, Grid, List, Filter, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -36,6 +36,13 @@ export default function ProductsPage({
   const [viewMode, setViewMode] = useState('grid');
   const [products, setProducts] = useState([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const handleSearchSubmit = (e) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      onNavigate("products", { search: searchQuery });
+    }
+  };
+   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -113,6 +120,7 @@ const itemVariants = {
   }
 };
 
+
   return (
     <motion.div
   initial={{ opacity: 0, y: 20 }}
@@ -122,47 +130,81 @@ const itemVariants = {
 >
 
       {/* Header */}
+<motion.header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+  <div className="container mx-auto px-4 py-3 grid grid-cols-3 items-center">
 
-      <motion.header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+    {/* LEFT: BACK BUTTON */}
+    <div className="flex items-center">
+      <Button variant="ghost" size="sm" onClick={() => onNavigate('home')} className="hover:text-pink-600">
+        <ArrowLeft className="w-4 h-4 mr-2" /> Back
+      </Button>
+    </div>
 
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => onNavigate('home')}>
-              <ArrowLeft className="w-4 h-4 mr-2" /> Back
-            </Button>
-             <h1
-            className="text-xl font-bold cursor-pointer"
-            onClick={() => onNavigate("home")}
-          >
-            Bare and Beautiful
-          </h1>
-          </div>
+    {/* MIDDLE: THE MONOGRAM LOGO */}
+    <div className="flex justify-center">
+      <img 
+        src="/assets/whitelogo.png" 
+        alt="Bare & Beautiful Logo"
+       className="h-10 md:h-14 w-auto cursor-pointer object-contain"
+        onClick={() => onNavigate("home")}
+      />
+    </div>
 
-          <div className="flex-1 max-w-md mx-4">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-              <Input
-                placeholder="Search brands or products..."
-                className="pl-10 bg-slate-100 border-none rounded-full h-10 shadow-inner"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
+    {/* RIGHT SIDE: SEARCH & CART GROUPED TOGETHER */}
+    <div className="flex items-center justify-center gap-1 md:gap-3">
+      
+      {/* SEARCH BUTTON (Mobile & Desktop) */}
+      <button 
+        onClick={() => setShowMobileSearch(!showMobileSearch)}
+        className="p-2 hover:text-pink-600 transition-colors"
+      >
+        <Search className="w-5 h-5 stroke-[1.5]" />
+      </button>
 
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" className="relative" onClick={() => onNavigate('cart')}>
-              <ShoppingBag className="w-5 h-5" />
-              {cartItemCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 bg-pink-600 text-white border-none min-w-[20px] h-5 flex items-center justify-center p-1 rounded-full text-[10px]">
-                  {cartItemCount}
-                </Badge>
-              )}
-            </Button>
-          </div>
+      {/* CART BUTTON */}
+      <button
+        className="relative p-2 hover:text-pink-600 transition-colors"
+        onClick={() => onNavigate('cart')}
+      >
+        <ShoppingBag className="w-5 h-5 stroke-[1.5]" />
+        {cartItemCount > 0 && (
+          <span className="absolute top-1 right-1 bg-black text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full ring-2 ring-white">
+            {cartItemCount}
+          </span>
+        )}
+      </button>
 
+    </div>
+  </div>
+
+  {/* MOBILE SEARCH DROPDOWN */}
+  <AnimatePresence>
+    {showMobileSearch && (
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: 'auto', opacity: 1 }}
+        exit={{ height: 0, opacity: 0 }}
+        className="absolute top-full left-0 right-0 bg-white border-b lg:hidden z-50"
+      >
+        <div className="px-6 py-4 flex gap-3 bg-white">
+          <Input
+            autoFocus
+            placeholder="Search products..."
+            className="h-12 rounded-full bg-slate-50 border-none focus:ring-1 focus:ring-pink-200"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearchSubmit}
+          />
+          <Button variant="ghost" onClick={() => setShowMobileSearch(false)} className="text-xs uppercase font-bold tracking-widest">
+            Close
+          </Button>
         </div>
-      </motion.header>
+      </motion.div>
+    )}
+  </AnimatePresence>
+</motion.header>
+
+      
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
