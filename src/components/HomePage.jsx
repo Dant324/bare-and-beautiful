@@ -13,9 +13,12 @@ import {
   ChevronDown,
   ChevronRight,
   Sparkles,
+  Moon,
+  Sun
  
 } from "lucide-react";
 
+import useDarkMode from "./useDarkMode";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
@@ -30,7 +33,6 @@ const categories = [
   { id: "sunscreen", name: "SUNSCREEN", icon: Sparkles },
   { id: "cleansers", name: "CLEANSERS", icon: Sparkles },
 ];
-
 
 
 const popularBrands = [
@@ -54,6 +56,8 @@ export default function HomePage({
   const [latestReviews, setLatestReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [colorTheme, setTheme] = useDarkMode();
+  const isDark = colorTheme === "light";
 
   const [currentHero, setCurrentHero] = useState(0);
 
@@ -176,8 +180,14 @@ const handleSubMenuSelection = (filterType, value) => {
 };
 
   return (
-    <div className="min-h-screen bg-background">
-     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-500">
+     <header 
+  style={{ 
+    backgroundColor: 'var(--bg-card)', 
+    borderColor: 'var(--border-subtle)',
+    color: 'var(--text-primary)' 
+  }}
+  className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm transition-colors duration-500">
   <div className="container mx-auto px-6 py-5 flex items-center justify-between">
 
     {/* LEFT: MENU + LOGO */}
@@ -230,6 +240,38 @@ const handleSubMenuSelection = (filterType, value) => {
       {/* ACTION ICONS */}
       <div className="flex items-center gap-2 md:gap-4"> 
         {/* Note: Gap reduced slightly because we are adding padding to the buttons */}
+         <motion.button
+          whileHover={{ scale: 1.1 }} 
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setTheme(colorTheme)}
+          className="p-2.5 rounded-full cursor-pointer relative overflow-hidden flex items-center justify-center w-10 h-10 transition-colors"
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {isDark ? (
+              <motion.div
+                key="sun"
+                initial={{ y: -20, opacity: 0, rotate: -90 }}
+                animate={{ y: 0, opacity: 1, rotate: 0 }}
+                exit={{ y: 20, opacity: 0, rotate: 90 }}
+                transition={{ duration: 0.2 }}
+                className="absolute"
+              >
+                <Sun className="w-5 h-5 text-orange-400" />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="moon"
+                initial={{ y: -20, opacity: 0, rotate: -90 }}
+                animate={{ y: 0, opacity: 1, rotate: 0 }}
+                exit={{ y: 20, opacity: 0, rotate: 90 }}
+                transition={{ duration: 0.2 }}
+                className="absolute"
+              >
+                <Moon className="w-5 h-5" style={{ color: 'var(--text-primary)' }} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.button>
 
         {/* USER ICON */}
         <motion.button 
@@ -469,8 +511,7 @@ const handleSubMenuSelection = (filterType, value) => {
 
 
 {/* FULL-SCREEN HERO SLIDESHOW */}
-
-<section
+     <section
   style={{ height: HERO_HEIGHT }}
   className="relative w-full overflow-hidden flex items-center justify-center"
 >
@@ -596,18 +637,18 @@ className="space-y-6"
 
 </section>
 
-
      {/* FEATURED PRODUCTS - SCROLL BUTTONS & HOVER POP */}
-                 <motion.section
+     <motion.section
                    initial={{ y: 50, opacity: 0 }}
                    animate={{ y: 0, opacity: 1 }}
                    transition={{ duration: 0.6, delay: 0.4 }}
-                   className="relative py-32 lg:py-48 bg-white overflow-hidden z-30"
-                 >
+                   className="relative py-32 lg:py-48 overflow-hidden z-30 transition-colors duration-500"
+  style={{ backgroundColor: 'var(--bg-main)' }}
+>
                    <div className="container mx-auto px-6">
                      <div className="flex justify-between items-end mb-10">
                        <div>
-                         <h3 className="text-3xl font-bold tracking-tight">Featured Essentials</h3>
+                         <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight">Featured Essentials</h3>
                          <p className="text-muted-foreground mt-1 font-medium italic">Hand-picked boutique favorites</p>
                        </div>
                        <div className="flex items-center gap-4">
@@ -653,45 +694,40 @@ className="space-y-6"
                                  className="cursor-pointer group hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col h-full overflow-hidden rounded-[2.5rem] border-slate-100 shadow-sm"
                                  onClick={() => onViewProduct(product)}
                                >
-                                 <CardContent className="p-0 flex flex-col h-full bg-white">
-                                   {/* CONSISTENT SIZE CONTAINER - FIXED STRETCHING */}
-                                 <div className="relative aspect-square w-48 bg-white flex items-center justify-center p-6 overflow-hidden">
-                                 <img
-                                 src={product.image}
-                                  alt={product.name}
-                                   /* object-contain ensures the image fits inside the square without stretching */
-                                  className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-700"
-                                 />
-                               {discount && (
-                                <Badge className="absolute top-6 left-6 bg-red-600 text-black font-black px-2.5 py-1 rounded-full text-[10px] shadow-lg border-none">
-                               {discount}% OFF
-                                      </Badge>
-                                 )}
-                                   </div>
-           
-                                   <div className="p-8 flex flex-col flex-grow justify-between bg-white">
-                                     <div className="space-y-3">
-                                       <p className="text-[11px] text-[#8B4513] font-black uppercase tracking-[0.15em]">
-                                         {product.brand}
-                                       </p>
-                                       {/* Standardized Font size for Product Name */}
-                                       <h4 className="font-medium text-base md:text-lg text-slate-800 line-clamp-2 leading-tight group-hover:text-pink-600 transition-colors">
-                                         {product.name}
-                                       </h4>
-                                     </div>
-           
-                                     <div className="flex items-center gap-3 mt-8">
-                                       <span className="font-black text-slate-900 text-2xl tracking-tighter">
-                                         KSh {product.price?.toLocaleString()}
-                                       </span>
-                                       {product.originalPrice && (
-                                         <span className="text-sm text-slate-300 line-through font-medium italic">
-                                           KSh {product.originalPrice.toLocaleString()}
-                                         </span>
-                                       )}
-                                     </div>
-                                   </div>
-                                 </CardContent>
+                                 <CardContent className="p-0 flex flex-col h-full bg-card text-card-foreground">
+  {/* Image Container */}
+  <div className="relative aspect-square w-48 bg-muted flex items-center justify-center p-6 overflow-hidden">
+    <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-700" />
+    {discount && (
+      <Badge className="absolute top-6 left-6 bg-red-600 text-black font-black px-2.5 py-1 rounded-full text-[10px] shadow-lg border-none">
+        {discount}% OFF
+      </Badge>
+    )}
+  </div>
+
+  {/* Text Content */}
+  <div className="p-8 flex flex-col flex-grow justify-between bg-card">
+    <div className="space-y-3">
+      <p className="text-[11px] text-orange-600 dark:text-orange-400 font-black uppercase tracking-[0.15em]">
+        {product.brand}
+      </p>
+      <h4 className="font-medium text-sm md:text-base lg:text-lg text-card-foreground line-clamp-2 leading-tight">
+        {product.name}
+      </h4>
+    </div>
+
+    <div className="flex items-center gap-3 mt-8">
+      <span className="font-black text-foreground text-2xl tracking-tighter">
+        KSh {product.price?.toLocaleString()}
+      </span>
+      {product.originalPrice && (
+        <span className="text-sm text-muted-foreground line-through font-medium italic">
+          KSh {product.originalPrice.toLocaleString()}
+        </span>
+      )}
+    </div>
+  </div>
+</CardContent>
                                </Card>
                              </motion.div>
                            );
@@ -704,7 +740,7 @@ className="space-y-6"
       {/* SHOP BY BRAND */}
 <section className="py-14 bg-white">
   <div className="container mx-auto px-4">
-    <h3 className="text-center font-black uppercase tracking-widest text-[10px] text-slate-400 mb-10">
+    <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-center mb-10">
       Popular Brands
     </h3>
 

@@ -122,12 +122,10 @@ const itemVariants = {
 
 
   return (
-    <motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.6, ease: "easeOut" }}
-  className="min-h-screen bg-slate-50"
->
+    <motion.div initial={{ opacity: 0, y: 20 }} 
+    animate={{ opacity: 1, y: 0 }} 
+    transition={{ duration: 0.6, ease: "easeOut" }} 
+    className="min-h-screen bg-background text-foreground transition-colors duration-500">
 
       {/* Header */}
 <motion.header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
@@ -215,9 +213,7 @@ const itemVariants = {
   initial={{ opacity: 0, x: -40 }}
   animate={{ opacity: 1, x: 0 }}
   transition={{ duration: 0.4 }}
-  className={`lg:w-64 space-y-8 bg-white p-6 rounded-3xl h-fit border border-slate-100 ${
-    isFilterOpen ? 'block' : 'hidden lg:block'
-  }`}
+  className={`lg:w-64 space-y-8 bg-card text-card-foreground p-6 rounded-3xl h-fit border border-border ${isFilterOpen ? 'block' : 'hidden lg:block'}`}
 >
             <div className="flex items-center justify-between lg:hidden mb-4">
               <h3 className="font-bold">Filters</h3>
@@ -399,70 +395,67 @@ const itemVariants = {
                 return (
 
                   <motion.div variants={itemVariants}>
-  <Card
-                    key={product.id}
-                    className="cursor-pointer group transition-all duration-500 border-none rounded-[2.5rem] shadow-sm overflow-hidden hover:shadow-2xl hover:-translate-y-2"                    onClick={() => onViewProduct(product)}
-                
-                  >
+  <Card 
+  className="cursor-pointer group hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col h-full overflow-hidden rounded-[2.5rem] bg-card border border-border shadow-sm" 
+  onClick={() => onViewProduct(product)}
+>
+  <CardContent className="p-0 flex flex-col h-full">
+    
+    {/* 1. IMAGE CONTAINER: Perfectly Square & Adaptable */}
+    <div className="relative aspect-square w-full bg-muted flex items-center justify-center p-6 overflow-hidden transition-colors duration-500">
+      <img 
+        src={product.image} 
+        alt={product.name} 
+        /* object-contain ensures tall or wide bottles never stretch or get cropped */
+        className="max-w-full max-h-full object-contain transition-transform duration-700 ease-out group-hover:scale-110" 
+      />
+      
+      {/* Discount Badge */}
+      {product.originalPrice && product.originalPrice > product.price && (
+        <Badge className="absolute top-4 left-4 md:top-6 md:left-6 bg-red-600 text-white font-black px-2.5 py-1 rounded-full text-[10px] shadow-lg border-none">
+          {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+        </Badge>
+      )}
+    </div>
 
-                    <CardContent className="p-0 flex flex-col h-full">
+    {/* 2. TEXT CONTENT: Flex-Grow ensures bottoms always align perfectly */}
+    <div className="p-6 md:p-8 flex flex-col flex-grow justify-between bg-card transition-colors duration-500">
+      
+      {/* Top Half of Text: Brand, Name, Rating */}
+      <div>
+        <p className="text-[10px] text-orange-600 dark:text-orange-400 font-bold uppercase tracking-widest mb-2">
+          {product.brand}
+        </p>
+        
+        {/* line-clamp-2 forces the title to take up exactly 2 lines max, keeping heights uniform */}
+        <h4 className="font-bold text-sm md:text-base lg:text-lg text-foreground line-clamp-2 mb-2 group-hover:text-pink-600 transition-colors">
+          {product.name}
+        </h4>
 
-                      <div className="relative bg-slate-50 flex items-center justify-center p-6 aspect-square">
+        <div className="flex items-center gap-1.5">
+          <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+          <span className="text-[11px] font-bold text-muted-foreground">
+            {product.rating || '5.0'}
+          </span>
+        </div>
+      </div>
+      
+      {/* Bottom Half of Text: Price (Pushed to bottom by flex-grow) */}
+      <div className="mt-6 flex items-baseline gap-2">
+        <span className="font-black text-foreground text-lg md:text-xl">
+          KSh {product.price?.toLocaleString()}
+        </span>
 
-                      
-                        <img src={product.image}
-                          alt={product.name}
-                         className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                        />
+        {product.originalPrice && (
+          <span className="text-xs text-muted-foreground line-through italic">
+            KSh {product.originalPrice.toLocaleString()}
+          </span>
+        )}
+      </div>
 
-                        {discount && (
-                          <Badge className="absolute top-6 left-6 bg-red-600 text-black font-black text-[10px] px-2.5 py-1 rounded-full border-none">
-                            {discount}% OFF
-                          </Badge>
-                        )}
-
-                      </div>
-
-                      <div className="p-8 bg-white flex-grow flex flex-col justify-between">
-
-                        <div>
-
-                          <p className="text-[10px] text-[#8B4513] font-black uppercase tracking-[0.15em] mb-2">
-                            {product.brand}
-                          </p>
-
-                          <h4 className="font-medium text-sm md:text-base text-slate-700 line-clamp-2 mb-2">
-                            {product.name}
-                          </h4>
-
-                          <div className="flex items-center gap-1.5">
-                            <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                            <span className="text-[11px] font-bold text-slate-400">
-                              {product.rating || '5.0'}
-                            </span>
-                          </div>
-
-                        </div>
-
-                        <div className="mt-6 flex items-baseline gap-2">
-
-                          <span className="font-black text-slate-900 text-lg">
-                            KSh {product.price?.toLocaleString()}
-                          </span>
-
-                          {product.originalPrice && (
-                            <span className="text-xs text-slate-300 line-through italic">
-                              KSh {product.originalPrice.toLocaleString()}
-                            </span>
-                          )}
-
-                        </div>
-
-                      </div>
-
-                    </CardContent>
-
-                  </Card>
+    </div>
+  </CardContent>
+</Card>
 
                   </motion.div>
 
