@@ -54,7 +54,16 @@ export default function HomePage({
   const [latestReviews, setLatestReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+
   const [currentHero, setCurrentHero] = useState(0);
+
+  useEffect(() => {
+  const interval = setInterval(() => {
+    setCurrentHero((prev) => (prev + 1) % featuredProducts.length)
+  }, 9000) // 9000ms = 9 seconds (slow)
+
+  return () => clearInterval(interval)
+}, [featuredProducts.length])
 
   const scrollRef = useRef(null);
 
@@ -112,7 +121,48 @@ export default function HomePage({
   fetchData();
 }, []);
 
+const [activeSubMenu, setActiveSubMenu] = useState(null);
 
+const menuData = {
+    brands: popularBrands.map(name => ({ id: name, name: name })), // Uses your existing popularBrands array
+    skincare: [
+      { id: "cleansers", name: "CLEANSERS" },
+      { id: "toners", name: "TONERS" },
+      { id: "serums", name: "SERUMS" },
+      { id: "moisturizers", name: "MOISTURIZERS" },
+      { id: "sunscreen", name: "SUNSCREEN" },
+    ],
+    skinType: [
+      { id: "acne-prone", name: "ACNE-PRONE" },
+      { id: "combination", name: "COMBINATION" },
+      { id: "dry", name: "DRY SKIN" },
+      { id: "dull", name: "DULL SKIN" },
+      { id: "mature", name: "MATURE SKIN" },
+      { id: "normal", name: "NORMAL SKIN" },
+      { id: "oily", name: "OILY SKIN" },
+    ],
+    concern: [
+      { id: "acne", name: "ACNE / BREAKOUTS" },
+      { id: "anti-aging", name: "ANTI-AGING" },
+      { id: "barrier-repair", name: "BARRIER REPAIR" },
+      { id: "brightening", name: "BRIGHTENING / GLOW" },
+      { id: "dark-circles", name: "DARK EYE CIRCLES" },
+      { id: "dark-spots", name: "DARK SPOTS" },
+      { id: "hydration", name: "DRYNESS / HYDRATION" },
+      { id: "oil-control", name: "OIL CONTROL / PORES" },
+    ]
+  };
+
+const handleSubMenuSelection = (filterType, value) => {
+    if (filterType === 'brands') {
+      onNavigate("products", { brand: value });
+    } else {
+      onSelectCategory(value);
+      onNavigate("products");
+    }
+    setShowSidebar(false);
+    setActiveSubMenu(null); // Reset for next time
+  };
 
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const HERO_HEIGHT = "50vh"; // change this whenever you want
@@ -131,15 +181,16 @@ export default function HomePage({
   <div className="container mx-auto px-6 py-5 flex items-center justify-between">
 
     {/* LEFT: MENU + LOGO */}
-    <div className="flex items-center gap-4">
-      <button
-        onClick={() => setShowSidebar(true)}
-        className="p-2 hover:text-pink-600 transition"
-      >
-        <Menu className="w-6 h-6 " />
-      </button>
-
-    </div>
+      <div className="flex items-center gap-4">
+        <motion.button
+          whileHover={{ scale: 1.1, backgroundColor: "#f8fafc" }} // slate-50
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setShowSidebar(true)}
+          className="p-2 rounded-full hover:text-pink-600 transition-colors cursor-pointer"
+        >
+          <Menu className="w-6 h-6" />
+        </motion.button>
+      </div>
 
 {/* MIDDLE: THE NEW MONOGRAM LOGO */}
     <div className="flex justify-center">
@@ -167,38 +218,62 @@ export default function HomePage({
       </div>
 
       {/* MOBILE SEARCH BUTTON */}
-      <button 
+      <motion.button 
+        whileHover={{ scale: 1.1, backgroundColor: "#fdf2f8", color: "#db2777" }} // Pink-50 bg, Pink-600 text
+        whileTap={{ scale: 0.9 }}
         onClick={() => setShowMobileSearch(!showMobileSearch)}
-        className="lg:hidden p-2"
+        className="lg:hidden p-2.5 rounded-full text-slate-700 transition-colors cursor-pointer"
       >
-        <Search className="w-5 cursor-pointer h-5" />
-      </button>
+        <Search className="w-5 h-5" />
+      </motion.button>
 
       {/* ACTION ICONS */}
-      <div className="flex items-center gap-6 md:gap-8">
+      <div className="flex items-center gap-2 md:gap-4"> 
+        {/* Note: Gap reduced slightly because we are adding padding to the buttons */}
 
-        <button 
+        {/* USER ICON */}
+        <motion.button 
+          whileHover={{ scale: 1.1, backgroundColor: "#fdf2f8", color: "#db2777" }} // Pink-50 bg, Pink-600 text
+          whileTap={{ scale: 0.9 }}
           onClick={() => user ? onNavigate("profile") : onNavigate("login")}
-          className="hover:text-pink-600 cursor-pointer"
+          className="p-2.5 rounded-full text-slate-700 transition-colors cursor-pointer"
         >
           <User className="w-5 h-5" />
-        </button>
+        </motion.button>
 
-        <button onClick={() => onNavigate("profile")}>
-          <Heart className="w-5 h-5 cursor-pointer" />
-        </button>
-
-        <button
-          className="relative"
-          onClick={() => onNavigate("cart")}
+        {/* WISHLIST (HEART) ICON */}
+        <motion.button 
+          whileHover={{ scale: 1.1, backgroundColor: "#fdf2f8", color: "#db2777" }} 
+          whileTap={{ scale: 0.9 }}
+          onClick={() => onNavigate("profile")} // Update this to your wishlist route when ready
+          className="p-2.5 rounded-full text-slate-700 transition-colors cursor-pointer group"
         >
-          <ShoppingBag className="w-5 h-5 cursor-pointer" />
-          {cartItemCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full">
-              {cartItemCount}
-            </span>
-          )}
-        </button>
+          <Heart className="w-5 h-5 group-hover:fill-pink-100 transition-colors duration-300" />
+        </motion.button>
+
+        {/* CART ICON */}
+        <motion.button
+          whileHover={{ scale: 1.1, backgroundColor: "#fdf2f8", color: "#db2777" }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => onNavigate("cart")}
+          className="p-2.5 rounded-full relative text-slate-700 transition-colors cursor-pointer"
+        >
+          <ShoppingBag className="w-5 h-5" />
+          
+          {/* Animated Cart Badge */}
+          <AnimatePresence>
+            {cartItemCount > 0 && (
+              <motion.span 
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1, type: "spring", stiffness: 500, damping: 15 }}
+                exit={{ scale: 0, opacity: 0 }}
+                className="absolute top-0 right-0 bg-pink-600 text-white text-[9px] font-black w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-white shadow-sm"
+              >
+                {cartItemCount}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </motion.button>
 
       </div>
     </div>
@@ -231,15 +306,17 @@ export default function HomePage({
   {/* SIDEBAR */}
   <AnimatePresence>
     {showSidebar && (
-<>
-      
+      <>
         {/* OVERLAY */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, }}
+          animate={{ opacity: 1, }}
           exit={{ opacity: 0 }}
-          onClick={() => setShowSidebar(false)}
-          className="fixed  inset-0 bg-black/40 z-40 cursor-pointer"
+          onClick={() => {
+            setShowSidebar(false);
+            setActiveSubMenu(null); // Reset menu when clicking outside
+          }}
+          className="fixed inset-0 bg-black/40 z-40 cursor-pointer"
         />
 
         {/* PANEL */}
@@ -248,80 +325,142 @@ export default function HomePage({
           animate={{ x: 0 }}
           exit={{ x: "-100%" }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="fixed top-0  left-0 h-full w-72 bg-white z-50 shadow-2xl p-6 flex flex-col"
+          className="fixed top-0 left-0 h-full w-72 md:w-80 bg-white z-50 shadow-2xl p-6 flex flex-col overflow-hidden"
         >
-          {/* CLOSE */}
-          <div className="flex  justify-between items-center mb-10">
-          
-            <button onClick={() => setShowSidebar(false)}>
-              <X className="w-5 cursor-pointer h-5" />
-            </button>
+
+
+          {/* SLIDING MENU CONTENT */}
+          <div className="flex-1 overflow-y-auto no-scrollbar -mx-6 px-6">
+            <AnimatePresence mode="wait">
+              
+              {!activeSubMenu ? (
+                /* --- MAIN MENU --- */
+                <motion.div
+                  key="main-menu"
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: -20, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col text-sm font-semibold mt-2"
+                >
+                  <motion.button 
+                    whileHover={{ x: 6, backgroundColor: "#fdf2f8" }} // slight right slide & pink-50 bg
+                    onClick={() => setActiveSubMenu("brands")} 
+                    className="py-4 px-4 -mx-4 rounded-xl flex justify-between items-center text-slate-800 hover:text-pink-600 uppercase tracking-widest text-[11px] font-black cursor-pointer group transition-colors"
+                  >
+                    Brands 
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-pink-600 group-hover:translate-x-1 transition-all duration-300" />
+                  </motion.button>
+
+                  <motion.button 
+                    whileHover={{ x: 6, backgroundColor: "#fdf2f8" }}
+                    onClick={() => setActiveSubMenu("skincare")} 
+                    className="py-4 px-4 -mx-4 rounded-xl flex justify-between items-center text-slate-800 hover:text-pink-600 uppercase tracking-widest text-[11px] font-black cursor-pointer group transition-colors"
+                  >
+                    Skincare 
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-pink-600 group-hover:translate-x-1 transition-all duration-300" />
+                  </motion.button>
+
+                  <motion.button 
+                    whileHover={{ x: 6, backgroundColor: "#fdf2f8" }}
+                    onClick={() => setActiveSubMenu("skinType")} 
+                    className="py-4 px-4 -mx-4 rounded-xl flex justify-between items-center text-slate-800 hover:text-pink-600 uppercase tracking-widest text-[11px] font-black cursor-pointer group transition-colors"
+                  >
+                    Shop by Skin Type 
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-pink-600 group-hover:translate-x-1 transition-all duration-300" />
+                  </motion.button>
+
+                  <motion.button 
+                    whileHover={{ x: 6, backgroundColor: "#fdf2f8" }}
+                    onClick={() => setActiveSubMenu("concern")} 
+                    className="py-4 px-4 -mx-4 rounded-xl flex justify-between items-center text-slate-800 hover:text-pink-600 uppercase tracking-widest text-[11px] font-black cursor-pointer group transition-colors"
+                  >
+                    Shop by Concern 
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-pink-600 group-hover:translate-x-1 transition-all duration-300" />
+                  </motion.button>
+
+                  <div className="h-px bg-slate-100 my-2 -mx-2" /> {/* Visual Divider */}
+
+                  {/* Static Links */}
+                  <motion.button 
+                    whileHover={{ x: 6, backgroundColor: "#f8fafc" }} // slate-50 bg for non-categories
+                    onClick={() => { onNavigate("perfume"); setShowSidebar(false); }} 
+                    className="py-4 px-4 -mx-4 rounded-xl flex justify-between items-center text-slate-500 hover:text-slate-900 uppercase tracking-widest text-[11px] font-black cursor-pointer group transition-colors"
+                  >
+                    Perfume 
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all duration-300 opacity-0 group-hover:opacity-100" />
+                  </motion.button>
+
+                  <motion.button 
+                    whileHover={{ x: 6, backgroundColor: "#f8fafc" }}
+                    onClick={() => { onNavigate("delivery"); setShowSidebar(false); }} 
+                    className="py-4 px-4 -mx-4 rounded-xl flex justify-between items-center text-slate-500 hover:text-slate-900 uppercase tracking-widest text-[11px] font-black cursor-pointer group transition-colors"
+                  >
+                    Order Delivery 
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all duration-300 opacity-0 group-hover:opacity-100" />
+                  </motion.button>
+
+                  <motion.button 
+                    whileHover={{ x: 6, backgroundColor: "#f8fafc" }}
+                    onClick={() => { onNavigate("faqs"); setShowSidebar(false); }} 
+                    className="py-4 px-4 -mx-4 rounded-xl flex justify-between items-center text-slate-500 hover:text-slate-900 uppercase tracking-widest text-[11px] font-black cursor-pointer group transition-colors"
+                  >
+                    FAQs 
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all duration-300 opacity-0 group-hover:opacity-100" />
+                  </motion.button>
+
+                  <motion.button 
+                    whileHover={{ x: 6, backgroundColor: "#f8fafc" }}
+                    onClick={() => { onNavigate("contact"); setShowSidebar(false); }} 
+                    className="py-4 px-4 -mx-4 rounded-xl flex justify-between items-center text-slate-500 hover:text-slate-900 uppercase tracking-widest text-[11px] font-black cursor-pointer group transition-colors"
+                  >
+                    Contact Us 
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all duration-300 opacity-0 group-hover:opacity-100" />
+                  </motion.button>
+                </motion.div>
+
+              ) : (
+                /* --- SUB MENU --- */
+                <motion.div
+                  key="sub-menu"
+                  initial={{ x: 20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: 20, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col text-sm font-semibold mt-2" // Removed divide-y for the clean hover background
+                >
+                  {/* Back Button - Slides Left! */}
+                  <motion.button 
+                    whileHover={{ x: -6, backgroundColor: "#f8fafc" }} // slate-50 bg
+                    onClick={() => setActiveSubMenu(null)} 
+                    className="py-3 px-4 -mx-4 rounded-xl flex items-center gap-3 hover:text-slate-900 uppercase tracking-widest text-[10px] font-black text-slate-400 mb-4 transition-colors cursor-pointer group"
+                  >
+                    <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" /> 
+                    BACK TO MENU
+                  </motion.button>
+
+                  <div className="h-px bg-slate-100 mb-2 -mx-2" /> {/* Visual Divider */}
+
+                  {/* Dynamic List Items - Slide Right */}
+                  {menuData[activeSubMenu].map((item) => (
+                    <motion.button
+                      key={item.id}
+                      whileHover={{ x: 6, backgroundColor: "#fdf2f8" }} // pink-50 bg
+                      onClick={() => handleSubMenuSelection(activeSubMenu, item.id)}
+                      className="py-4 px-4 -mx-4 rounded-xl flex justify-between items-center text-left hover:text-pink-600 uppercase tracking-widest text-[11px] font-bold text-slate-700 transition-colors cursor-pointer group"
+                    >
+                      {item.name}
+                      {/* Optional subtle arrow that appears on hover, you can remove this span if you just want text! */}
+                      <span className="opacity-0 group-hover:opacity-100 text-pink-600 transition-opacity duration-300">
+                         <ChevronRight className="w-3 h-3" />
+                      </span>
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+
+            </AnimatePresence>
           </div>
-
-          {/* LINKS */}
-<div className="flex flex-col gap-6 text-sm font-semibold overflow-hidden">
-
-  {/* MAIN SHOP BUTTON WITH FLIP/REVEAL ANIMATION */}
-  <div className="flex flex-col border-b border-slate-100 pb-4">
-    <button
-      onClick={() => setShowCategoryMenu(!showCategoryMenu)}
-      className="flex justify-between items-center text-left cursor-pointer hover:text-pink-600 transition-all uppercase tracking-widest text-[11px] font-black"
-    >
-      Shop by Category
-      <motion.div
-        animate={{ rotate: showCategoryMenu ? 180 : 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <ChevronDown className="w-4 h-4 opacity-50" />
-      </motion.div>
-    </button>
-
-    {/* AESTHETIC REVEAL AREA */}
-    <AnimatePresence>
-      {showCategoryMenu && (
-        <motion.div
-          initial={{ rotateX: -90, opacity: 0, height: 0 }}
-          animate={{ rotateX: 0, opacity: 1, height: "auto" }}
-          exit={{ rotateX: -90, opacity: 0, height: 0 }}
-          transition={{ duration: 0.5, ease: "circOut" }}
-          style={{ transformOrigin: "top" }}
-          className="flex flex-col gap-4 mt-6 pl-4 border-l border-pink-100"
-        >
-          {['Skincare', 'Fragrance', 'Hair Care', 'Body Care'].map((item) => (
-            <motion.button
-              key={item}
-              whileHover={{ x: 5, color: "#db2777" }}
-              onClick={() => {
-                const categoryId=(item.toLowerCase().replace(' ', ''));
-                onSelectCategory(categoryId);
-                onNavigate("products");
-                setShowSidebar(false);
-              }}
-              className="text-left text-xs text-slate-400 font-bold uppercase tracking-[0.2em] transition-colors"
-            >
-              {item}
-            </motion.button>
-          ))}
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </div>
-
-  {/* REMAINING LINKS */}
-  <button
-    onClick={() => { onNavigate("discover"); setShowSidebar(false); }}
-    className="text-left cursor-pointer hover:text-pink-600 uppercase tracking-widest text-[11px] font-black"
-  >
-    Discover
-  </button>
-
-  <button
-    onClick={() => { onNavigate("contact"); setShowSidebar(false); }}
-    className="text-left cursor-pointer hover:text-pink-600 uppercase tracking-widest text-[11px] font-black"
-  >
-    Contact
-  </button>
-</div>
         </motion.div>
       </>
     )}
@@ -472,13 +611,14 @@ className="space-y-6"
                          <p className="text-muted-foreground mt-1 font-medium italic">Hand-picked boutique favorites</p>
                        </div>
                        <div className="flex items-center gap-4">
-                         <motion.button
+                         
+      <motion.button                   
   onClick={() => onNavigate('products')}
   whileHover={{ scale: 1.08 }}
   whileTap={{ scale: 0.95 }}
-  className="items-center gap-2 bg-pink-600 text-black px-6 py-3 rounded-full text-sm font-bold shadow-lg hover:bg-pink-700 transition-all"
+  className="items-center gap-2 bg-pink-600 text-black px-6 py-4 rounded-full text-sm font-bold shadow-lg hover:bg-pink-700 transition-all"
 >
-  Shop Now <ArrowRight className="w-4 h-4" />
+  Shop Now 
 </motion.button>
                          <div className="flex gap-2">
                            <Button variant="outline" size="icon" className="rounded-full border-slate-200 hover:bg-pink-50 hover:text-pink-600" onClick={() => scroll('left')}>
@@ -635,16 +775,6 @@ className="space-y-6"
               </p>
             </div>
 
-            <div className="flex flex-col gap-6">
-              <h5 className="font-black mb-2 text-slate-900 uppercase text-[10px] tracking-[0.2em] opacity-50">Shop Categories</h5>
-              <ul className="space-y-4 text-sm text-muted-foreground font-bold">
-                {categories.map((cat) => (
-                  <li key={cat.id}>
-                    <button onClick={() => handleCategoryClick(cat.id)} className="hover:text-pink-600 transition-colors">{cat.name}</button>
-                  </li>
-                ))}
-              </ul>
-            </div>
 
             <div className="flex flex-col gap-6">
               <h5 className="font-black mb-2 text-slate-900 uppercase text-[10px] tracking-[0.2em] opacity-50">Boutique Support</h5>
