@@ -21,37 +21,11 @@ export default function AdminLogin({ onNavigate }) {
   };
 
   return (
-    <div 
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "linear-gradient(to bottom, #ffeef0, #fff5f0)",
-        position: "relative",
-        padding: "1rem"
-      }}
-    >
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-500 flex flex-col justify-center items-center p-4 relative">
       {/* Back to Store Button */}
       <button 
         onClick={() => onNavigate('home')} 
-        style={{
-          position: "absolute",
-          top: "1.5rem",
-          left: "1.5rem",
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          background: "none",
-          border: "none",
-          color: "#4b5563",
-          fontWeight: "700",
-          cursor: "pointer",
-          transition: "color 0.2s"
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.color = "#f472b6"}
-        onMouseLeave={(e) => e.currentTarget.style.color = "#4b5563"}
+       className="absolute top-6 left-6 flex items-center gap-2 text-muted-foreground hover:text-pink-600 font-bold transition-colors cursor-pointer"
       >
         <ArrowLeft style={{ width: "1.25rem", height: "1.25rem" }} /> Back to Store
       </button>
@@ -59,15 +33,7 @@ export default function AdminLogin({ onNavigate }) {
       {/* Login Form */}
       <form
         onSubmit={handleLogin}
-        style={{
-          backgroundColor: "white",
-          padding: "2rem",
-          borderRadius: "1rem",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-          width: "100%",
-          maxWidth: "360px",
-          textAlign: "center"
-        }}
+        className="bg-card border border-border p-8 rounded-[2rem] shadow-sm w-full max-w-[360px] text-center transition-colors duration-500"
       >
         <h2 style={{ fontSize: "1.75rem", fontWeight: "700", marginBottom: "1rem", color: "#f472b6" }}>
           Admin Login
@@ -80,14 +46,7 @@ export default function AdminLogin({ onNavigate }) {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            marginBottom: "1rem",
-            borderRadius: "0.5rem",
-            border: "1px solid #e5e7eb",
-            boxSizing: "border-box"
-          }}
+          className="w-full p-4 mb-4 rounded-xl border-none bg-muted text-foreground focus:ring-2 focus:ring-pink-500 outline-none transition-colors"
         />
         
         <input
@@ -95,29 +54,14 @@ export default function AdminLogin({ onNavigate }) {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            marginBottom: "1rem",
-            borderRadius: "0.5rem",
-            border: "1px solid #e5e7eb",
-            boxSizing: "border-box"
-          }}
+          className="w-full p-4 mb-6 rounded-xl border-none bg-muted text-foreground focus:ring-2 focus:ring-pink-500 outline-none transition-colors"
         />
         
         <button
           type="submit"
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            backgroundColor: "#f472b6",
-            color: "white",
-            fontWeight: "600",
-            borderRadius: "0.5rem",
-            cursor: "pointer",
-            border: "none"
-          }}
+          className="w-full p-4 bg-pink-600 text-white font-bold rounded-xl hover:bg-pink-700 transition-colors shadow-md"
         >
+        
           Login
         </button>
       </form>

@@ -14,7 +14,9 @@ import {
   ChevronRight,
   Sparkles,
   Moon,
-  Sun
+  Sun,
+  Instagram,
+  Facebook,
  
 } from "lucide-react";
 
@@ -36,11 +38,11 @@ const categories = [
 
 
 const popularBrands = [
-  "COSRX",
-  "SIMPLE",
-  "HADA LABO",
-  "ANUA",
-  "EQQUALBERRY",
+  { name: "COSRX", image: "/brands/cosrx-logo.jpg" },
+  { name: "SIMPLE", image: "/brands/simple-logo.png" },
+  { name: "HADA LABO", image: "/brands/hadalabo-logo.jpg" },
+  { name: "ANUA", image: "/brands/anua-logo.jpg" },
+  { name: "EQQUALBERRY", image: "/brands/eqqualberry-logo.jpg" }
 ];
 
 export default function HomePage({
@@ -107,7 +109,8 @@ export default function HomePage({
     const featuredQ = query(
       collection(db, "products"),
       where("featured", "==", true),
-      orderBy("name") // Different sorting so they don't match the Hero exactly
+      orderBy("name"), // Different sorting so they don't match the Hero exactly
+      limit(8)
     );
     const featSnap = await getDocs(featuredQ);
     
@@ -180,7 +183,7 @@ const handleSubMenuSelection = (filterType, value) => {
 };
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-500">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-500 ease-in-out">
      <header 
   style={{ 
     backgroundColor: 'var(--bg-card)', 
@@ -220,7 +223,7 @@ const handleSubMenuSelection = (filterType, value) => {
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-pink-600" />
         <Input
           placeholder="Search products..."
-          className="pl-11 h-10 w-48 focus:w-72 transition-all duration-500 rounded-full bg-slate-100 border-transparent focus:bg-white"
+          className="pl-11 h-10 w-48 focus:w-72 transition-all duration-500 rounded-full bg-muted border-transparent focus:bg-background text-foreground"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleSearchSubmit}
@@ -334,7 +337,7 @@ const handleSubMenuSelection = (filterType, value) => {
           <Input
             autoFocus
             placeholder="Search..."
-            className="h-12 rounded-full bg-slate-50"
+            className="h-12 rounded-full bg-muted text-foreground border-transparent"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleSearchSubmit}
@@ -643,7 +646,7 @@ className="space-y-6"
                    animate={{ y: 0, opacity: 1 }}
                    transition={{ duration: 0.6, delay: 0.4 }}
                    className="relative py-32 lg:py-48 overflow-hidden z-30 transition-colors duration-500"
-  style={{ backgroundColor: 'var(--bg-main)' }}
+                   style={{ backgroundColor: 'var(--bg-main)' }}
 >
                    <div className="container mx-auto px-6">
                      <div className="flex justify-between items-end mb-10">
@@ -653,14 +656,15 @@ className="space-y-6"
                        </div>
                        <div className="flex items-center gap-4">
                          
-      <motion.button                   
-  onClick={() => onNavigate('products')}
-  whileHover={{ scale: 1.08 }}
-  whileTap={{ scale: 0.95 }}
-  className="items-center gap-2 bg-pink-600 text-black px-6 py-4 rounded-full text-sm font-bold shadow-lg hover:bg-pink-700 transition-all"
->
-  Shop Now 
-</motion.button>
+                      <motion.button                   
+                         onClick={() => onNavigate('products')}
+                          whileHover={{ scale: 1.08 }}
+                          whileTap={{ scale: 0.95 }}
+                         className="items-center gap-2 bg-pink-600 text-slate-900 px-6 py-4 rounded-full text-sm font-bold shadow-lg hover:bg-pink-700 transition-colors"
+                       >
+                     Shop Now 
+                      </motion.button>
+                  
                          <div className="flex gap-2">
                            <Button variant="outline" size="icon" className="rounded-full border-slate-200 hover:bg-pink-50 hover:text-pink-600" onClick={() => scroll('left')}>
                              <ChevronLeft className="w-5 h-5" />
@@ -677,7 +681,7 @@ className="space-y-6"
                           {[1,2,3,4].map(i => <div key={i} className="min-w-[280px] h-[420px] bg-slate-100 animate-pulse rounded-[2.5rem]" />)}
                        </div>
                      ) : (
-                       <div ref={scrollRef} className="flex gap-6 overflow-x-auto pb-10 snap-x snap-mandatory no-scrollbar scroll-smooth">
+                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-slate-200 border border-slate-200 overflow-hidden">
                          {gridProducts.map((product) => {
                            const discount = product.originalPrice && product.originalPrice > product.price
                              ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -686,7 +690,7 @@ className="space-y-6"
                            return (
                              <motion.div 
                                key={product.id} 
-                               className="min-w-[280px] md:min-w-[320px] snap-start"
+                               className="w-full h-full"
                                whileHover={{ scale: 1.05, y: -10 }} 
                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
                              >
@@ -696,25 +700,39 @@ className="space-y-6"
                                >
                                  <CardContent className="p-0 flex flex-col h-full bg-card text-card-foreground">
   {/* Image Container */}
-  <div className="relative aspect-square w-48 bg-muted flex items-center justify-center p-6 overflow-hidden">
-    <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-700" />
-    {discount && (
-      <Badge className="absolute top-6 left-6 bg-red-600 text-black font-black px-2.5 py-1 rounded-full text-[10px] shadow-lg border-none">
-        {discount}% OFF
-      </Badge>
-    )}
-  </div>
+  <div className="relative aspect-[4/5] bg-[#f8f8f8] dark:bg-muted/30 flex items-center justify-center p-4">
+        <img 
+          src={product.image} 
+          alt={product.name} 
+          className="max-w-full max-h-full object-contain" 
+        />
+        
+        {/* 2. FLOATING ACTIONS (Top Right) */}
+        <div className="absolute top-3 right-3 flex flex-col gap-2">
+        </div>
+      </div>
 
   {/* Text Content */}
-  <div className="p-8 flex flex-col flex-grow justify-between bg-card">
-    <div className="space-y-3">
-      <p className="text-[11px] text-orange-600 dark:text-orange-400 font-black uppercase tracking-[0.15em]">
-        {product.brand}
-      </p>
-      <h4 className="font-medium text-sm md:text-base lg:text-lg text-card-foreground line-clamp-2 leading-tight">
-        {product.name}
-      </h4>
-    </div>
+  <div className="p-4 flex flex-col flex-grow bg-card transition-colors duration-500">
+        {/* Product Name */}
+        <h4 className="text-sm font-medium text-foreground line-clamp-2 mb-1 leading-tight min-h-[2.5rem]">
+          {product.name}
+        </h4>
+        
+        {/* Brand Name (Uppercase & Gray) */}
+        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-2">
+          {product.brand}
+        </p>
+
+        {/* Rating Section */}
+        <div className="flex items-center gap-1 mb-3">
+          <div className="flex text-yellow-400">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-3 h-3 fill-current" />
+            ))}
+          </div>
+          <span className="text-[10px] text-muted-foreground font-bold">(45)</span>
+        </div>
 
     <div className="flex items-center gap-3 mt-8">
       <span className="font-black text-foreground text-2xl tracking-tighter">
@@ -728,36 +746,50 @@ className="space-y-6"
     </div>
   </div>
 </CardContent>
-                               </Card>
+                          </Card>
                              </motion.div>
                            );
                          })}
                        </div>
                      )}
                    </div>
-                 </motion.section>
+        </motion.section>
 
-      {/* SHOP BY BRAND */}
-<section className="py-14 bg-white">
+{/* SHOP BY BRAND - LOGO VERSION */}
+<section className="py-20 bg-background transition-colors duration-500">
   <div className="container mx-auto px-4">
-    <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-center mb-10">
-      Popular Brands
+    <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-center text-foreground mb-12">
+      Shop by Brand
     </h3>
 
-    <div className="grid  grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 md:gap-6">
-      {popularBrands.map((brandName) => (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+      {popularBrands.map((brand) => (
         <motion.button
-          key={brandName}
-          whileHover={{ scale: 1.06 }}
-          whileTap={{ scale: 0.96 }}
-          onClick={() => {
-            // 1. Tell App.jsx which brand we want (if you passed a setter prop)
-            // Or use the navigate function if you updated it to handle objects
-            onNavigate("products", { brand: brandName }); 
-          }}
-          className="h-20 cursor-pointer md:h-24 rounded-2xl bg-gradient-to-br from-slate-50 to-white border border-slate-200 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all flex items-center justify-center font-bold text-sm md:text-base tracking-wide text-slate-800"
+          key={brand.name}
+          whileHover={{ y: -10, borderColor: "var(--accent)" }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => onNavigate("products", { brand: brand.name })}
+          /* Aesthetic Container: 
+             - We use h-28 md:h-36 to give the logos plenty of breathing room.
+             - bg-white is used inside the logo box to ensure dark logos stay visible, 
+               or we use bg-card if your logos have transparent backgrounds.
+          */
+          className="group relative h-28 md:h-36 rounded-[2rem] bg-card border border-border shadow-sm transition-all duration-500 flex flex-col items-center justify-center p-6 overflow-hidden"
         >
-          {brandName}
+          {/* Brand Logo */}
+          <div className="w-full h-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+            {brand.image ? (
+              <img 
+                src={brand.image} 
+                alt={brand.name} 
+                /* object-contain is critical to prevent logos from stretching */
+                className="max-w-full max-h-full object-contain filter dark:brightness-0 dark:invert transition-all duration-500" 
+              />
+            ) : (
+              <span className="font-black text-lg text-foreground">{brand.name}</span>
+            )}
+          </div>
+
         </motion.button>
       ))}
     </div>
@@ -765,7 +797,7 @@ className="space-y-6"
 </section>
       
       {/* REVIEWS */}
-            <section className="py-20 bg-slate-50">
+            <section className="py-20 bg-muted transition-colors duration-500">
               <div className="container mx-auto px-4 text-center">
                 <h3 className="text-4xl font-bold mb-12">
                   Our Glowing Customers
@@ -775,7 +807,7 @@ className="space-y-6"
                   {latestReviews.map((rev) => (
                     <div
                       key={rev.id}
-                      className="p-8 bg-white rounded-3xl shadow-sm"
+                      className="p-8 bg-card border border-border rounded-3xl shadow-sm transition-colors duration-500"
                     >
                       <div className="flex justify-center mb-4">
                         {[...Array(5)].map((_, i) => (
@@ -800,77 +832,112 @@ className="space-y-6"
                 </div>
               </div>
             </section>
+
     {/* Footer */}
-      <footer className="py-16 bg-gradient-to-br from-pink-50 to-orange-50">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
-            <div className="col-span-2 md:col-span-1">
-              <h4 className="font-bold mb-8 text-2xl tracking-tighter text-slate-900 italic underline decoration-pink-500 decoration-4 underline-offset-8">Bare and Beautiful</h4>
-              <p className="text-sm text-muted-foreground leading-loose">
-                Premium destination for curated skincare and fragrance. We believe in beauty crafted for your natural radiance.
-              </p>
-            </div>
+<footer className="py-20 bg-card border-t border-border transition-colors duration-500">
+  {/* Container: centers content and prevents over-stretching on wide monitors */}
+  <div className="container mx-auto px-6 lg:px-12 max-w-7xl">
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+      
+      {/* 1. BRANDING: Centered on mobile, left-aligned on desktop */}
+      <div className="space-y-6 text-center md:text-left">
+        <h2 className="text-2xl font-bold tracking-tighter text-pink-600">
+          Bare & Beautiful
+        </h2>
+        <p className="text-sm text-muted-foreground leading-relaxed font-medium">
+          Premium destination for curated skincare and fragrance. We believe in beauty crafted for your natural radiance.
+        </p>
+      </div>
 
-
-            <div className="flex flex-col gap-6">
-              <h5 className="font-black mb-2 text-slate-900 uppercase text-[10px] tracking-[0.2em] opacity-50">Boutique Support</h5>
-              <ul className="space-y-4 text-sm text-muted-foreground font-bold">
-                <li><button onClick={() => onNavigate('contact')} className="hover:text-pink-600 transition-colors">Contact Us</button></li>
-                <li><button onClick={() => onNavigate('faq')} className="hover:text-pink-600 transition-colors">Boutique Help</button></li>
-                <li><button onClick={() => onNavigate('returns')} className="hover:text-pink-600 transition-colors">Returns</button></li>
-                <li><button onClick={() => onNavigate('shipping')} className="hover:text-pink-600 transition-colors">Shipping</button></li>
-              </ul>
-            </div>
-
-            <div className="flex flex-col gap-6">
-              <ul className="space-y-4 text-sm text-muted-foreground font-bold">
-                <div className="flex flex-col gap-6">
-  <h5 className="font-black mb-2 text-slate-900 uppercase text-[10px] tracking-[0.2em] opacity-50">Follow Radiance</h5>
-  <ul className="space-y-4 text-sm text-muted-foreground font-bold">
-    <li>
-      <a 
-        href="https://www.instagram.com/bareandbeautifulskincare" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="hover:text-pink-600 transition-colors"
-      >
-        Instagram
-      </a>
-    </li>
-    <li>
-      <a 
-        href="https://www.facebook.com/bareandbeautifulskincare" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="hover:text-pink-600 transition-colors"
-      >
-        Facebook
-      </a>
-    </li>
-    <li>
-      <a 
-        href="https://www.tiktok.com/@bareandbeautifulskincare" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="hover:text-pink-600 transition-colors"
-      >
-        TikTok
-      </a>
-    </li>
-  </ul>
-</div>
-              </ul>
-            </div>
-          </div>
-
-          <div
-            className="mt-20 pt-10 border-t border-slate-100 text-center text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] hover:text-slate-900 transition-colors"
-            onClick={() => onNavigate('admin-login')}
-          >
-            © 2024 Bare and Beautiful Boutique. Radiance, Redefined.
-          </div>
+      {/* 2. QUICK LINKS: Stacks neatly on mobile, spreads on desktop */}
+      <div className="grid grid-cols-2 gap-8 md:col-span-1 lg:col-span-2">
+        
+        {/* Customer Care Column */}
+        <div className="space-y-5">
+          <h5 className="font-black uppercase text-[10px] tracking-[0.2em] text-foreground ">
+            Customer Care
+          </h5>
+          <ul className="space-y-3 text-sm font-bold text-muted-foreground">
+            <li><button onClick={() => onNavigate('contact')} className="hover:text-pink-600 transition-colors text-left">Contact Us</button></li>
+            <li><button onClick={() => onNavigate('help')} className="hover:text-pink-600 transition-colors text-left">Boutique Help</button></li>
+            <li><button onClick={() => onNavigate('returns')} className="hover:text-pink-600 transition-colors text-left">Returns</button></li>
+            <li><button onClick={() => onNavigate('shipping')} className="hover:text-pink-600 transition-colors text-left">Shipping</button></li>
+          </ul>
         </div>
-      </footer>
+
+        {/* Information Column */}
+        <div className="space-y-5">
+          <h5 className="font-bold uppercase text-[10px] tracking-[0.2em] text-foreground">
+            Information
+          </h5>
+          <ul className="space-y-3 text-sm font-bold text-muted-foreground">
+            <li><button className="hover:text-pink-600 transition-colors text-left">Privacy Policy</button></li>
+            <li><button className="hover:text-pink-600 transition-colors text-left">Terms of Service</button></li>
+            <li><button className="hover:text-pink-600 transition-colors text-left">Store Locator</button></li>
+          </ul>
+        </div>
+      </div>
+
+      {/* 3. SOCIALS: Updated with official brand icons */}
+      <div className="space-y-6 text-center md:text-left">
+        <h5 className="font-bold uppercase text-[10px] tracking-[0.2em] text-foreground ">
+          Follow Radiance
+        </h5>
+        <div className="flex justify-center md:justify-start gap-4">
+          
+          {/* INSTAGRAM */}
+          <a 
+            href="https://www.instagram.com/bareandbeautifulskincare" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="p-3 rounded-full bg-muted hover:bg-pink-100 dark:hover:bg-pink-900/30 text-muted-foreground hover:text-pink-600 transition-all duration-300 shadow-sm"
+          >
+            <Instagram className="w-5 h-5" />
+            <span className="sr-only">Instagram</span>
+          </a>
+
+          {/* TIKTOK (Custom SVG) */}
+          <a 
+            href="https://www.tiktok.com/@bareandbeautifulskincare" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="p-3 rounded-full bg-muted hover:bg-pink-100 dark:hover:bg-pink-900/30 text-muted-foreground hover:text-pink-600 transition-all duration-300 shadow-sm"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+              <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+            </svg>
+            <span className="sr-only">TikTok</span>
+          </a>
+
+          {/* FACEBOOK */}
+          <a 
+            href="https://www.facebook.com/bareandbeautifulskincare" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="p-3 rounded-full bg-muted hover:bg-pink-100 dark:hover:bg-pink-900/30 text-muted-foreground hover:text-pink-600 transition-all duration-300 shadow-sm"
+          >
+            <Facebook className="w-5 h-5" />
+            <span className="sr-only">Facebook</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    {/* 4. BOTTOM BAR: Copyright and Payment Info */}
+    <div className="mt-20 pt-10 border-t border-border flex flex-col md:flex-row justify-between items-center gap-6">
+      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-center md:text-left">
+        © 2026 Bare & Beautiful. All rights reserved.
+      </p>
+      <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50">
+        <span>Curating Radiance</span>
+        <span>Secure Payment</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
     </div>
   );
 }

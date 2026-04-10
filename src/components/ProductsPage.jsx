@@ -216,7 +216,7 @@ const itemVariants = {
   className={`lg:w-64 space-y-8 bg-card text-card-foreground p-6 rounded-3xl h-fit border border-border ${isFilterOpen ? 'block' : 'hidden lg:block'}`}
 >
             <div className="flex items-center justify-between lg:hidden mb-4">
-              <h3 className="font-bold">Filters</h3>
+              <h3 className="text-sm font-black uppercase tracking-widest text-foreground">Filters</h3>
               <X className="cursor-pointer" onClick={() => setIsFilterOpen(false)} />
             </div>
 
@@ -308,13 +308,13 @@ const itemVariants = {
 
             {/* Popular Brands (BUTTON VERSION) */}
 
-            <section className="mb-8">
+            <section className="mb-12">
 
-              <h3 className="text-center font-black uppercase tracking-widest text-[10px] text-slate-400 mb-5">
-                Popular Brands
-              </h3>
+              <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-center text-foreground mb-8">
+    Popular Brands
+  </h3>
 
-              <div className="flex flex-wrap justify-center gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
 
                 {popularBrands.map(brand => (
 
@@ -326,9 +326,9 @@ const itemVariants = {
                     onClick={() => setSelectedBrand(brand)}
                    className={`px-7 py-3.5 rounded-full text-base font-semibold shadow-sm hover:shadow-md
                     ${selectedBrand === brand
-                        ? 'bg-pink-600 text- border-pink-600 shadow-md'
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-pink-400 hover:text-pink-600'
-                      }`}
+                       ? 'bg-pink-600 text-white border-pink-600 shadow-lg' 
+            : 'bg-card text-foreground border-border hover:bg-muted'
+          }`}
                   >
                     {brand}
                   </motion.button>
@@ -394,7 +394,8 @@ const itemVariants = {
 
                 return (
 
-                  <motion.div variants={itemVariants}>
+                  <motion.div variants={itemVariants}
+                   whileHover={{ scale: 1.05, y: -10 }} >
   <Card 
   className="cursor-pointer group hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col h-full overflow-hidden rounded-[2.5rem] bg-card border border-border shadow-sm" 
   onClick={() => onViewProduct(product)}

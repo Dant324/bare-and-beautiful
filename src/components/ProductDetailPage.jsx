@@ -127,7 +127,7 @@ export default function ProductDetailPage({
     : product.rating || "0";
 
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-10">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-500 pb-24 md:pb-10">
       <motion.header initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -158,12 +158,12 @@ export default function ProductDetailPage({
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
           {/* MULTI-IMAGE GALLERY */}
           <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="space-y-4">
-            <div className="relative rounded-[2.5rem] bg-white border shadow-sm flex items-center justify-center p-6 aspect-square">
+            <div className="relative rounded-[2.5rem] bg-card border-border shadow-sm flex items-center justify-center p-6 aspect-square transition-colors duration-500">
               <img src={activeImg} alt={product.name} className="max-w-full max-h-full object-contain transition-transform duration-700 hover:scale-105" />
               <Button 
                 variant="secondary" 
                 size="icon" 
-                className={`absolute top-2 right-2 rounded-full shadow-md transition-all ${isFavorite ? 'bg-black text-pink-400' : 'bg-white'}`}
+                className={`absolute top-2 right-2 rounded-full shadow-md transition-all ${isFavorite ? 'bg-card text-pink-400' : 'bg-card'}`}
                 onClick={() => toggleWishlist(product)}
               >
                 <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
@@ -176,7 +176,7 @@ export default function ProductDetailPage({
                 <button 
                   key={i} 
                   onClick={() => setActiveImg(img)}
-                  className={`w-20 h-20 rounded-2xl border-2 shrink-0 overflow-hidden transition-all ${activeImg === img ? 'border-pink-500 bg-pink-50' : 'border-slate-100 bg-white'}`}
+                  className={`w-20 h-20 rounded-2xl border-2 shrink-0 overflow-hidden transition-all ${activeImg === img ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/30' : 'border-border bg-card'}`}
                 >
                   <img src={img} className="w-full h-full object-contain p-2" />
                 </button>
@@ -225,13 +225,13 @@ export default function ProductDetailPage({
 
             <div className="grid grid-cols-2 gap-4 pt-6">
               {/* UPDATED TO PAID DELIVERY */}
-              <div className="p-4 rounded-2xl bg-slate-50 text-center space-y-1"><Truck className="w-5 h-5 mx-auto text-slate-400" /><p className="text-[10px] font-black uppercase tracking-widest">Paid Delivery</p></div>
-              <div className="p-4 rounded-2xl bg-slate-50 text-center space-y-1"><Shield className="w-5 h-5 mx-auto text-slate-400" /><p className="text-[10px] font-black uppercase tracking-widest">Authentic</p></div>
+              <div className="p-4 rounded-2xl bg-muted-50 text-center space-y-1"><Truck className="w-5 h-5 mx-auto text-slate-400" /><p className="text-[10px] font-black uppercase tracking-widest">Paid Delivery</p></div>
+              <div className="p-4 rounded-2xl bg-muted-50 text-center space-y-1"><Shield className="w-5 h-5 mx-auto text-slate-400" /><p className="text-[10px] font-black uppercase tracking-widest">Authentic</p></div>
             </div>
 
             <div className="mt-12 pt-8 border-t">
               <h3 className="text-xl font-bold mb-4 tracking-tight">{hasReviewed ? "Update Your Review" : "Write a Review"}</h3>
-              <form onSubmit={handlePostReview} className="space-y-4 p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+              <form onSubmit={handlePostReview} className="space-y-4 p-6 bg-muted-50 rounded-[2rem] border border-slate-100">
                 <div className="flex gap-2 mb-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button key={star} type="button" onClick={() => setNewRating(star)} className="focus:outline-none transition-transform active:scale-90">

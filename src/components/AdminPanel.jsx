@@ -167,7 +167,7 @@ export default function AdminPanel({ onNavigate }) {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-slate-50 text-slate-900">
+    <div className="min-h-screen p-6 bg-background text-foreground transition-colors duration-500">
       {/* HEADER SECTION */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between mb-10 items-start md:items-center gap-6">
         <div className="flex items-center gap-4">
@@ -195,11 +195,11 @@ export default function AdminPanel({ onNavigate }) {
         {view === 'inventory' ? (
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1">
-              <form onSubmit={editingId ? handleUpdate : handleAddProduct} className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 sticky top-24 space-y-4">
+              <form onSubmit={editingId ? handleUpdate : handleAddProduct} className="bg-card p-8 rounded-[2rem] shadow-sm border border-slate-100 sticky top-24 space-y-4">
                 <h2 className="text-xl font-black mb-4 uppercase tracking-widest text-slate-400 text-xs">{editingId ? "Edit Product" : "New Product"}</h2>
                 <div className="space-y-3">
-                  <input name="name" placeholder="Product Name" value={form.name} onChange={handleInputChange} className="w-full p-3 border-none bg-slate-50 rounded-xl focus:ring-2 focus:ring-pink-500 outline-none" />
-                  <input name="brand" placeholder="Brand Name" value={form.brand} onChange={handleInputChange} className="w-full p-3 border-none bg-slate-50 rounded-xl focus:ring-2 focus:ring-pink-500 outline-none" />
+                  <input name="name" placeholder="Product Name" value={form.name} onChange={handleInputChange} className="w-full p-3 border-none bg-muted text-foreground rounded-xl focus:ring-2 focus:ring-pink-500 outline-none transition-colors duration-500"/>
+                  <input name="brand" placeholder="Brand Name" value={form.brand} onChange={handleInputChange} className="w-full p-3 border-none bg-muted text-foreground rounded-xl focus:ring-2 focus:ring-pink-500 outline-none transition-colors duration-500"/>
                   <div className="grid grid-cols-2 gap-3">
                     <input name="price" type="number" placeholder="Price (KSh)" value={form.price} onChange={handleInputChange} className="p-3 border-none bg-slate-50 rounded-xl focus:ring-2 focus:ring-pink-500 outline-none" />
                     <input name="originalPrice" type="number" placeholder="Old Price" value={form.originalPrice} onChange={handleInputChange} className="p-3 border-none bg-slate-50 rounded-xl focus:ring-2 focus:ring-pink-500 outline-none" />
@@ -237,7 +237,7 @@ export default function AdminPanel({ onNavigate }) {
               </div>
               <div className="grid md:grid-cols-2 gap-6">
                 {products.map(product => (
-                  <div key={product.id} className="bg-white p-5 rounded-[2.5rem] shadow-sm border border-slate-100 group hover:shadow-xl transition-all duration-300">
+                  <div key={product.id} className="bg-card p-5 rounded-[2.5rem] shadow-sm border border-slate-100 group hover:shadow-xl transition-all duration-300">
                     <div className="relative aspect-square mb-4 overflow-hidden rounded-[2rem] bg-slate-50 flex items-center justify-center p-6">
                       <img src={product.image || "/fallback.jpg"} alt={product.name} className="max-w-full max-h-full object-contain" />
                       {product.images?.length > 1 && (

@@ -31,7 +31,7 @@ const handleSubmit = async (e) => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-orange-50 to-purple-50 flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-500 flex flex-col items-center justify-center p-6">
       <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -48,7 +48,7 @@ const handleSubmit = async (e) => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+        <Card className="shadow-xl border border-border bg-card/90 backdrop-blur-sm transition-colors duration-500">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl bg-gradient-to-r from-pink-600 to-orange-600 bg-clip-text text-transparent">
               Welcome Back

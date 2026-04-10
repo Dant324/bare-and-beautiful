@@ -108,7 +108,7 @@ export default function CartPage({
   }
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-500 pb-10">
       {Header}
       <div className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-8">
@@ -116,7 +116,7 @@ export default function CartPage({
             {cart.map((item) => (
               <Card key={item.product.id}>
                 <CardContent className="p-4 flex gap-4">
-                  <img src={item.product.image} alt={item.product.name} className="w-20 h-20 object-contain rounded bg-white" />
+                  <img src={item.product.image} alt={item.product.name} className="w-20 h-20 object-contain rounded bg-muted transition-colors duration-500 p-1" />
                   <div className="flex-1">
                     <div className="flex justify-between">
                       <h3 className="font-bold">{item.product.name}</h3>
