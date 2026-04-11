@@ -131,7 +131,8 @@ export default function HomePage({
 const [activeSubMenu, setActiveSubMenu] = useState(null);
 
 const menuData = {
-    brands: popularBrands.map(name => ({ id: name, name: name })), // Uses your existing popularBrands array
+    // We specifically grab brand.name for both id and name
+    brands: popularBrands.map(brand => ({ id: brand.name, name: brand.name })), 
     skincare: [
       { id: "cleansers", name: "CLEANSERS" },
       { id: "toners", name: "TONERS" },
@@ -172,7 +173,7 @@ const handleSubMenuSelection = (filterType, value) => {
   };
 
   const [showMobileSearch, setShowMobileSearch] = useState(false);
-  const HERO_HEIGHT = "50vh"; // change this whenever you want
+  const HERO_HEIGHT = "clamp(420px, 55vh, 650px)";// change this whenever you want
   const heroTextColor = featuredProducts[currentHero]?.themeColor || "white";
  const HERO_CONFIG = {
   dotsRight: 20,
@@ -514,9 +515,10 @@ const handleSubMenuSelection = (filterType, value) => {
 
 
 {/* FULL-SCREEN HERO SLIDESHOW */}
+
      <section
   style={{ height: HERO_HEIGHT }}
-  className="relative w-full overflow-hidden flex items-center justify-center"
+  className="relative w-full max-w-7xl mx-auto mt-10 overflow-hidden rounded-[2rem] lg:rounded-[3.5rem] shadow-xl"
 >
 
 {loading ? (
@@ -542,7 +544,7 @@ const active = index === currentHero
 return(
 <motion.div
 key={product.id}
-className="absolute inset-0"
+className="absolute inset-0 overflow-hidden"
 initial={{ opacity:0 }}
 animate={{ opacity: active ? 1 : 0 }}
 transition={{ duration:1 }}
@@ -563,8 +565,8 @@ setCurrentHero((prev)=> prev===0 ? featuredProducts.length-1 : prev-1)
 
 <img
 src={product.image}
-className="w-full h-full object-cover object-center md:object-top lg:object-center"
 alt={product.name}
+className="absolute top-1/2 left-1/2 min-w-full min-h-full max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
 />
 
 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 md:bg-black/30" />
@@ -578,7 +580,7 @@ alt={product.name}
 
 
 {/* HERO TEXT */}
-<div className="relative z-10 text-center px-6 max-w-[900px]">
+<div className="relative z-10 text-center px-6 max-w-[900px] mx-auto">
 
 <motion.div
 key={currentHero}
@@ -588,9 +590,7 @@ transition={{ duration:0.6 }}
 className="space-y-6"
 >
 
-
-
-
+{/* Add hero title/description here if needed */}
 
 </motion.div>
 
@@ -601,38 +601,39 @@ className="space-y-6"
 <div 
   className="absolute z-40 flex flex-col items-center md:items-end gap-6"
   style={{ 
-    right: 'clamp(20px, 5vw, 60px)', // Adaptive spacing from right
+    right: 'clamp(20px, 5vw, 60px)',
     bottom: `${HERO_CONFIG.dotsBottom}px` 
   }}
 >
-  {/* EXPLORE BUTTON - Sits above dots */}
-  <motion.button
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-    onClick={() => onViewProduct(featuredProducts[currentHero])}
-    className="border border-white/40 backdrop-blur-md text-black px-8 py-3 text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-500 shadow-2xl"
-  >
-    Explore the Edit
-  </motion.button>
 
-  {/* NAVIGATION DOTS - Grayscale Logic */}
-  <div className="flex gap-3 px-2 py-1">
-    {featuredProducts.map((_, index) => (
-      <button
-        key={index}
-        onClick={() => setCurrentHero(index)}
-        style={{ 
-          width: currentHero === index ? '24px' : `${HERO_CONFIG.dotSize}px`, 
-          height: `${HERO_CONFIG.dotSize}px` 
-        }}
-        className={`rounded-full transition-all duration-500 shadow-sm border border-black/5
-          ${currentHero === index 
-            ? "bg-black"               // Active: Solid Black
-            : "bg-slate-300 hover:bg-slate-400" // Inactive: Grey
-          }`}
-      />
-    ))}
-  </div>
+<motion.button
+whileHover={{ scale: 1.05,}}
+whileTap={{ scale: 0.95 }}
+onClick={() => onViewProduct(featuredProducts[currentHero])}
+className="border border-white/40 backdrop-blur-md text-black px-8 py-3 text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-500 shadow-2xl"
+>
+Explore the Edit
+</motion.button>
+
+
+<div className="flex gap-3 px-2 py-1">
+{featuredProducts.map((_, index) => (
+<button
+key={index}
+onClick={() => setCurrentHero(index)}
+style={{ 
+width: currentHero === index ? '24px' : `${HERO_CONFIG.dotSize}px`, 
+height: `${HERO_CONFIG.dotSize}px` 
+}}
+className={`rounded-full transition-all duration-500 shadow-sm border border-black/5
+${currentHero === index 
+? "bg-black"
+: "bg-slate-300 hover:bg-slate-400"
+}`}
+ />
+))}
+</div>
+
 </div>
 
 </>
@@ -649,30 +650,42 @@ className="space-y-6"
                    style={{ backgroundColor: 'var(--bg-main)' }}
 >
                    <div className="container mx-auto px-6">
-                     <div className="flex justify-between items-end mb-10">
-                       <div>
-                         <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight">Featured Essentials</h3>
-                         <p className="text-muted-foreground mt-1 font-medium italic">Hand-picked boutique favorites</p>
-                       </div>
+                     <div className="text-center mb-16">
+                       {/* FEATURED ESSENTIALS HEADER - NOW CENTERED */}
+<div className="flex flex-col items-center text-center">
+  <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground uppercase">
+    Featured Essentials
+  </h3>
+
+  <div className="w-20 h-1 bg-pink-600 mt-4 mb-2 rounded-full" />
+
+  <p className="text-muted-foreground font-medium italic text-lg">
+    Hand-picked boutique favorites
+  </p>
+</div>
                        <div className="flex items-center gap-4">
                          
-                      <motion.button                   
-                         onClick={() => onNavigate('products')}
-                          whileHover={{ scale: 1.08 }}
-                          whileTap={{ scale: 0.95 }}
-                         className="items-center gap-2 bg-pink-600 text-slate-900 px-6 py-4 rounded-full text-sm font-bold shadow-lg hover:bg-pink-700 transition-colors"
-                       >
-                     Shop Now 
-                      </motion.button>
+                      <div className="mt-16 flex justify-center">
+  <motion.button                   
+    onClick={() => onNavigate('products')}
+    whileHover={{ scale: 1.05, }} // pink-700
+    whileTap={{ scale: 0.95 }}
+    className="flex items-center gap-3 bg-pink-600 text-slate-900 px-5 py-5 rounded-full text-sm font-black shadow-2xl transition-all duration-300 uppercase tracking-[0.2em] cursor-pointer"
+  >
+    Shop Full Collection
+    <ArrowRight className="w-5 h-5" />
+  </motion.button>
+</div>
                   
-                         <div className="flex gap-2">
+                        {/*<div className="flex gap-2">
                            <Button variant="outline" size="icon" className="rounded-full border-slate-200 hover:bg-pink-50 hover:text-pink-600" onClick={() => scroll('left')}>
                              <ChevronLeft className="w-5 h-5" />
                            </Button>
                            <Button variant="outline" size="icon" className="rounded-full border-slate-200 hover:bg-pink-50 hover:text-pink-600" onClick={() => scroll('right')}>
                              <ChevronRight className="w-5 h-5" />
                            </Button>
-                         </div>
+                         </div>*/}
+
                        </div>
                      </div>
            
@@ -755,42 +768,49 @@ className="space-y-6"
                    </div>
         </motion.section>
 
-{/* SHOP BY BRAND - LOGO VERSION */}
-<section className="py-20 bg-background transition-colors duration-500">
+
+{/* SHOP BY BRAND */}
+<section className="py-24 bg-background transition-colors duration-500">
   <div className="container mx-auto px-4">
-    <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-center text-foreground mb-12">
+    {/* Section Title */}
+    <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-center text-foreground mb-20 uppercase">
       Shop by Brand
     </h3>
 
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+    {/* Circular Grid Container */}
+    <div className="flex flex-wrap justify-center gap-10 md:gap-14 lg:gap-20">
       {popularBrands.map((brand) => (
-        <motion.button
-          key={brand.name}
-          whileHover={{ y: -10, borderColor: "var(--accent)" }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => onNavigate("products", { brand: brand.name })}
-          /* Aesthetic Container: 
-             - We use h-28 md:h-36 to give the logos plenty of breathing room.
-             - bg-white is used inside the logo box to ensure dark logos stay visible, 
-               or we use bg-card if your logos have transparent backgrounds.
-          */
-          className="group relative h-28 md:h-36 rounded-[2rem] bg-card border border-border shadow-sm transition-all duration-500 flex flex-col items-center justify-center p-6 overflow-hidden"
-        >
-          {/* Brand Logo */}
-          <div className="w-full h-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+        <div key={brand.name} className="flex flex-col items-center group">
+          {/* Circular Image Background */}
+          <motion.button
+            whileHover={{ scale: 1.25 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onNavigate("products", { brand: brand.name })}
+            /* Styling to match the screenshot:
+               - rounded-full: Perfect circle
+               - border-2: Thin outline like Lintons
+               - p-8: Keeps the logo from touching the border
+            */
+            className="relative w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 rounded-full border-2 border-border bg-card shadow-sm transition-all duration-500 flex items-center justify-center p-8 md:p-12 overflow-hidden cursor-pointer"
+          >
             {brand.image ? (
               <img 
                 src={brand.image} 
                 alt={brand.name} 
-                /* object-contain is critical to prevent logos from stretching */
-                className="max-w-full max-h-full object-contain filter dark:brightness-0 dark:invert transition-all duration-500" 
+                className="w-full h-full object-contain filter dark:brightness-0 dark:invert transition-all duration-500 group-hover:scale-110" 
               />
             ) : (
-              <span className="font-black text-lg text-foreground">{brand.name}</span>
+              <span className="font-black text-sm md:text-base text-foreground uppercase tracking-tighter">
+                {brand.name}
+              </span>
             )}
-          </div>
-
-        </motion.button>
+          </motion.button>
+          
+          {/* Label centered below the circle */}
+          <span className="mt-6 text-sm md:text-base font-bold text-foreground uppercase tracking-widest group-hover:text-pink-600 transition-colors">
+            {brand.name}
+          </span>
+        </div>
       ))}
     </div>
   </div>

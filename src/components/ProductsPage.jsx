@@ -326,7 +326,7 @@ const itemVariants = {
                     onClick={() => setSelectedBrand(brand)}
                    className={`px-7 py-3.5 rounded-full text-base font-semibold shadow-sm hover:shadow-md
                     ${selectedBrand === brand
-                       ? 'bg-pink-600 text-white border-pink-600 shadow-lg' 
+                       ? 'bg-pink-600 text-slate-900 border-pink-600 shadow-lg' 
             : 'bg-card text-foreground border-border hover:bg-muted'
           }`}
                   >
