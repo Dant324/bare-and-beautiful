@@ -778,7 +778,7 @@ ${currentHero === index
     </h3>
 
     {/* Circular Grid Container */}
-    <div className="flex flex-wrap justify-center gap-10 md:gap-14 lg:gap-20">
+    <div className="grid grid-cols-2 md:grid-cols-2 gap-y-16 gap-x-12 justify-items-center max-w-3xl mx-auto">
       {popularBrands.map((brand) => (
         <div key={brand.name} className="flex flex-col items-center group">
           {/* Circular Image Background */}
