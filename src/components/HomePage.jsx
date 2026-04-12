@@ -946,7 +946,7 @@ ${currentHero === index
     </div>
 
     {/* 4. BOTTOM BAR: Copyright and Payment Info */}
-    <div className="mt-20 pt-10 border-t border-border flex flex-col md:flex-row justify-between items-center gap-6">
+    <div onClick={() => onNavigate('admin-login')} className="mt-20 pt-10 border-t border-border flex flex-col md:flex-row justify-between items-center gap-6">
       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-center md:text-left">
         © 2026 Bare & Beautiful. All rights reserved.
       </p>
