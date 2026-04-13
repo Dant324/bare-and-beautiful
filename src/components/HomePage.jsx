@@ -209,7 +209,7 @@ const handleSubMenuSelection = (filterType, value) => {
 {/* MIDDLE: THE NEW MONOGRAM LOGO */}
     <div className="flex justify-center">
       <img 
-        src="/assets/whitelogo.png" 
+        src={isDark ? "/assets/blacklogo.png" : "/assets/whitelogo.png"} 
         alt="Bare & Beautiful Logo"
         className="h-12 md:h-16 w-auto cursor-pointer object-contain hover:opacity-80 transition-opacity"
         onClick={() => onNavigate("home")}
@@ -694,7 +694,7 @@ ${currentHero === index
                           {[1,2,3,4].map(i => <div key={i} className="min-w-[280px] h-[420px] bg-slate-100 animate-pulse rounded-[2.5rem]" />)}
                        </div>
                      ) : (
-                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-slate-200 border border-slate-200 overflow-hidden">
+                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-12">
                          {gridProducts.map((product) => {
                            const discount = product.originalPrice && product.originalPrice > product.price
                              ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -708,7 +708,7 @@ ${currentHero === index
                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
                              >
                                <Card 
-                                 className="cursor-pointer group hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col h-full overflow-hidden rounded-[2.5rem] border-slate-100 shadow-sm"
+                                 className="cursor-pointer group flex flex-col h-full overflow-hidden rounded-[2rem] border border-border bg-card shadow-sm hover:shadow-xl transition-all duration-500"
                                  onClick={() => onViewProduct(product)}
                                >
                                  <CardContent className="p-0 flex flex-col h-full bg-card text-card-foreground">

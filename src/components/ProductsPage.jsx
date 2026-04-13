@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Search, Star, ArrowLeft, Grid, List, Filter, X } from 'lucide-react';
+import { ShoppingBag, Search, Star, ArrowLeft, Grid, List, Filter, X,Moon,Sun } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Card, CardContent } from './ui/card';
 import { db } from './firebase/firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import useDarkMode from "./useDarkMode";
 
 const categories = [
   { id: 'all', name: 'All Products' },
@@ -36,6 +37,8 @@ export default function ProductsPage({
   const [viewMode, setViewMode] = useState('grid');
   const [products, setProducts] = useState([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [colorTheme, setTheme] = useDarkMode();
+  const isDark = colorTheme === "light";
 
   const handleSearchSubmit = (e) => {
     if (e.key === "Enter" && searchQuery.trim()) {
@@ -141,7 +144,7 @@ const itemVariants = {
     {/* MIDDLE: THE MONOGRAM LOGO */}
     <div className="flex justify-center">
       <img 
-        src="/assets/whitelogo.png" 
+        src={isDark ? "/assets/blacklogo.png" : "/assets/whitelogo.png"}
         alt="Bare & Beautiful Logo"
        className="h-10 md:h-14 w-auto cursor-pointer object-contain"
         onClick={() => onNavigate("home")}
@@ -151,6 +154,40 @@ const itemVariants = {
     {/* RIGHT SIDE: SEARCH & CART GROUPED TOGETHER */}
     <div className="flex items-center justify-center gap-1 md:gap-3">
       
+    {/* 1. DARK MODE TOGGLE (Add this) */}
+  <motion.button
+    whileHover={{ scale: 1.1 }}
+    whileTap={{ scale: 0.9 }}
+    onClick={() => setTheme(colorTheme)}
+    className="p-2 rounded-full cursor-pointer relative overflow-hidden flex items-center justify-center w-10 h-10 transition-colors"
+  >
+    <AnimatePresence mode="wait" initial={false}>
+      {isDark ? (
+        <motion.div
+          key="sun"
+          initial={{ y: -20, opacity: 0, rotate: -90 }}
+          animate={{ y: 0, opacity: 1, rotate: 0 }}
+          exit={{ y: 20, opacity: 0, rotate: 90 }}
+          transition={{ duration: 0.2 }}
+          className="absolute"
+        >
+          <Sun className="w-5 h-5 text-orange-400" />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="moon"
+          initial={{ y: -20, opacity: 0, rotate: -90 }}
+          animate={{ y: 0, opacity: 1, rotate: 0 }}
+          exit={{ y: 20, opacity: 0, rotate: 90 }}
+          transition={{ duration: 0.2 }}
+          className="absolute"
+        >
+          <Moon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </motion.button>
+
       {/* SEARCH BUTTON (Mobile & Desktop) */}
       <button 
         onClick={() => setShowMobileSearch(!showMobileSearch)}
@@ -235,7 +272,7 @@ const itemVariants = {
                     className={`block text-sm w-full text-left px-3 py-2 rounded-xl transition-all
                       ${selectedCategory === cat.id
                         ? 'bg-pink-50 text-pink-600 font-bold'
-                        : 'hover:bg-slate-50 text-slate-600'
+                        : 'hover:bg-muted text-muted-foreground'
                       }`}
                   >
                     {cat.name}
@@ -247,7 +284,7 @@ const itemVariants = {
             {/* Skin Types */}
 
             <div>
-              <h4 className="font-bold text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-4">
+              <h4 className="font-bold text-[10px] uppercase tracking-[0.2em] text-slate-900 mb-4">
                 Skin Concern
               </h4>
 
@@ -255,19 +292,20 @@ const itemVariants = {
                 {skinTypes.map(type => (
                   <motion.div
                   key={type}
-             whileHover={{ scale: 1.05 }}
-  whileTap={{ scale: 0.85 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.85 }}
 >
-  <Badge
+<Badge
     onClick={() => setSelectedSkinType(type)}
     className={`cursor-pointer px-3 py-1 rounded-full border shadow-none font-medium
       ${selectedSkinType === type
-        ? 'bg-pink-600 text-black border-pink-600'
-        : 'bg-white text-slate-500 border-slate-200'
+        ? ' border-pink-600'
+        : 'bg-muted text-muted-foreground border-border hover:bg-accent'
       }`}
   >
     {type}
   </Badge>
+  
 </motion.div>
   
                 ))}
@@ -282,7 +320,7 @@ const itemVariants = {
               </h4>
 
               <select
-                className="w-full bg-slate-50 p-3 rounded-xl text-sm outline-none border border-slate-100 font-medium"
+                className="w-full bg-muted p-3 rounded-xl text-sm outline-none border border-border text-foreground font-medium transition-colors cursor-pointer"
                 value={selectedBrand}
                 onChange={(e) => setSelectedBrand(e.target.value)}
               >
@@ -323,7 +361,7 @@ const itemVariants = {
                    whileHover={{ scale: 1.1 }}
                    whileTap={{ scale: 0.9 }}
                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                    onClick={() => setSelectedBrand(brand)}
+                   onClick={() => setSelectedBrand(brand)}
                    className={`px-7 py-3.5 rounded-full text-base font-semibold shadow-sm hover:shadow-md
                     ${selectedBrand === brand
                        ? 'bg-pink-600 text-slate-900 border-pink-600 shadow-lg' 
